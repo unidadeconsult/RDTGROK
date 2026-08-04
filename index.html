@@ -34,40 +34,72 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     body { background: #0A0A0A; }
-    .magazine-header {
-      background: linear-gradient(180deg, #C8102E 0%, #9B0C24 100%);
-    }
+    .magazine-header { background: linear-gradient(180deg, #C8102E 0%, #9B0C24 100%); }
     .chunk-card { transition: all 0.2s ease; }
     .chunk-card:hover { transform: translateY(-2px); border-color: #C8102E; }
     textarea::-webkit-scrollbar, .scroll-thin::-webkit-scrollbar { width: 6px; }
     textarea::-webkit-scrollbar-track, .scroll-thin::-webkit-scrollbar-track { background: #1C1C1C; }
     textarea::-webkit-scrollbar-thumb, .scroll-thin::-webkit-scrollbar-thumb { background: #C8102E; border-radius: 3px; }
-    .loading-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    .btn-primary {
-      background: #C8102E;
-      transition: all 0.2s;
-    }
+    .btn-primary { background: #C8102E; transition: all 0.2s; }
     .btn-primary:hover { background: #E30613; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    #loginGate {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #0A0A0A;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+    .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+    #loginGate { position: fixed; inset: 0; z-index: 9999; background: #0A0A0A; display: flex; align-items: center; justify-content: center; }
     #loginGate.hidden { display: none; }
+
+    /* Toast */
+    .toast { transform: translateX(120%); transition: transform 0.35s cubic-bezier(0.21,1.02,0.73,1); }
+    .toast.show { transform: translateX(0); }
+    .toast.hide { transform: translateX(120%); }
+
+    /* Loading football */
+    @keyframes bounce-ball {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-18px) rotate(180deg); }
+    }
+    @keyframes shadow-pulse {
+      0%, 100% { transform: scaleX(1); opacity: 0.3; }
+      50% { transform: scaleX(0.6); opacity: 0.1; }
+    }
+    .ball-bounce { animation: bounce-ball 0.6s ease-in-out infinite; }
+    .ball-shadow { animation: shadow-pulse 0.6s ease-in-out infinite; }
+
+    /* Streaming cursor */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .cursor-blink::after { content:'|'; animation: blink 0.7s step-end infinite; color: #C8102E; }
+
+    /* Tab active */
+    .tab-btn { border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .tab-btn.active { border-bottom-color: #C8102E; color: #C8102E; }
+    .tab-btn:not(.active) { color: #A0A0A0; }
+    .tab-btn:hover:not(.active) { color: white; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* History drawer */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+    .drawer-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 90vw; background: #111; z-index: 201; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); overflow-y: auto; }
+    .drawer-panel.open { transform: translateX(0); }
+
+    /* Template chip */
+    .template-chip { transition: all 0.15s; cursor: pointer; }
+    .template-chip:hover { background: #C8102E; color: white; border-color: #C8102E; }
+
+    /* Tone selector */
+    .tone-option { transition: all 0.15s; cursor: pointer; }
+    .tone-option.selected { background: #C8102E; color: white; border-color: #C8102E; }
+    .tone-option:not(.selected):hover { border-color: #C8102E; color: white; }
   </style>
 </head>
 <body class="text-white font-sans min-h-screen">
 
-  <!-- Tela de senha -->
+  <!-- Toast container -->
+  <div id="toastContainer" class="fixed top-20 right-4 z-[300] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Login -->
   <div id="loginGate">
     <div class="w-full max-w-sm mx-4 bg-placar-card border border-white/10 rounded-xl p-8 text-center">
       <div class="bg-placar-red inline-block px-4 py-1 mb-5">
@@ -78,13 +110,28 @@
       <input id="loginPassword" type="password" placeholder="Senha"
              class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm text-center focus:outline-none focus:border-placar-red mb-3"
              onkeydown="if(event.key==='Enter') verificarSenha()" />
-      <button onclick="verificarSenha()" class="btn-primary w-full text-white font-bold py-3 rounded text-sm">
-        Entrar
-      </button>
+      <button onclick="verificarSenha()" class="btn-primary w-full text-white font-bold py-3 rounded text-sm">Entrar</button>
       <p id="loginError" class="text-red-400 text-xs mt-3 hidden">Senha incorreta</p>
     </div>
   </div>
 
+  <!-- History drawer -->
+  <div id="drawerOverlay" class="drawer-overlay" onclick="fecharHistorico()"></div>
+  <div id="drawerPanel" class="drawer-panel">
+    <div class="sticky top-0 bg-placar-gray border-b border-white/10 px-5 py-4 flex items-center justify-between z-10">
+      <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Historico de Materias</h3>
+      <button onclick="fecharHistorico()" class="text-placar-muted hover:text-white text-lg">&times;</button>
+    </div>
+    <div class="p-4">
+      <input id="histSearch" type="text" placeholder="Buscar no historico..."
+             class="w-full bg-placar-black border border-white/15 rounded px-3 py-2 text-sm mb-4 focus:outline-none focus:border-placar-red"
+             oninput="renderizarHistorico()" />
+      <div id="histList" class="space-y-3"></div>
+      <div id="histEmpty" class="text-center text-placar-muted text-sm py-10 hidden">Nenhuma materia salva ainda.</div>
+    </div>
+  </div>
+
+  <!-- Header -->
   <header class="magazine-header sticky top-0 z-50 shadow-lg">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-4">
@@ -96,9 +143,16 @@
           <p class="text-[10px] text-white/70 tracking-wider">ALMA DE ARQUIBANCADA</p>
         </div>
       </div>
-      <div class="text-right">
-        <p class="text-[10px] uppercase tracking-widest text-white/80">Edicao Digital</p>
-        <p class="text-xs font-semibold text-white">Escrita com IA</p>
+      <div class="flex items-center gap-3">
+        <button onclick="abrirHistorico()" class="flex items-center gap-1.5 bg-black/30 hover:bg-black/50 px-3 py-1.5 rounded text-xs font-medium transition" title="Historico">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span class="hidden sm:inline">Historico</span>
+          <span id="histBadge" class="bg-white text-black text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+        </button>
+        <div class="text-right hidden sm:block">
+          <p class="text-[10px] uppercase tracking-widest text-white/80">Edicao Digital</p>
+          <p class="text-xs font-semibold text-white">Escrita com IA</p>
+        </div>
       </div>
     </div>
   </header>
@@ -112,6 +166,7 @@
 
   <main class="max-w-5xl mx-auto px-4 py-8 space-y-6">
 
+    <!-- Intro -->
     <section class="border-l-4 border-placar-red bg-placar-card p-5">
       <h2 class="font-display text-2xl uppercase tracking-tight mb-2">Escreva futebol do jeito RDT</h2>
       <p class="text-placar-muted text-sm leading-relaxed max-w-3xl">
@@ -121,6 +176,7 @@
       </p>
     </section>
 
+    <!-- Config IA -->
     <section class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
       <div class="bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between">
         <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Configuracao da IA</h3>
@@ -146,74 +202,105 @@
           <div class="flex gap-2">
             <input id="apiKey" type="password" placeholder="Cole sua chave (gsk_... ou sk-...)"
                    class="flex-1 bg-placar-black border border-white/15 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-placar-red font-mono" />
-            <button id="btnSalvarKey" onclick="salvarKey()" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2.5 rounded text-xs font-semibold transition min-w-[80px]">
-              Salvar
-            </button>
+            <button id="btnSalvarKey" onclick="salvarKey()" class="btn-secondary px-4 py-2.5 rounded text-xs font-semibold min-w-[80px]">Salvar</button>
           </div>
           <p id="keyFeedback" class="text-[11px] mt-1.5 hidden"></p>
-          <p class="text-[11px] text-placar-muted mt-1.5">
-            Groq: console.groq.com | DeepSeek: platform.deepseek.com | OpenAI: platform.openai.com
-          </p>
+          <p class="text-[11px] text-placar-muted mt-1.5">Groq: console.groq.com | DeepSeek: platform.deepseek.com | OpenAI: platform.openai.com</p>
         </div>
       </div>
     </section>
 
+    <!-- Pauta -->
     <section class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
       <div class="bg-placar-gray px-5 py-3 border-b border-white/10">
         <h3 class="font-display text-sm uppercase tracking-wider">Pauta</h3>
       </div>
       <div class="p-5 space-y-4">
+        <!-- Templates rapidos -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-2">Templates rapidos</label>
+          <div class="flex flex-wrap gap-2" id="templateChips">
+            <button onclick="aplicarTemplate('prejogo')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Pre-jogo</button>
+            <button onclick="aplicarTemplate('posjogo')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Pos-jogo</button>
+            <button onclick="aplicarTemplate('transferencia')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Transferencias</button>
+            <button onclick="aplicarTemplate('tatica')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Analise Tatica</button>
+            <button onclick="aplicarTemplate('bastidores')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Bastidores</button>
+            <button onclick="aplicarTemplate('polemica')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Polemica da Rodada</button>
+            <button onclick="aplicarTemplate('cronica')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Cronica de Jogo</button>
+          </div>
+        </div>
+
+        <!-- URL -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">URL da noticia (opcional)</label>
           <div class="flex gap-2">
-            <input id="urlNoticia" type="url" placeholder="https://ge.globo.com/... ou qualquer link de noticia"
+            <input id="urlNoticia" type="url" placeholder="https://ge.globo.com/... ou qualquer link"
                    class="flex-1 bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition" />
-            <button id="btnUrl" onclick="gerarPorUrl()" class="bg-white/10 hover:bg-white/20 border border-white/15 font-medium px-4 py-2.5 rounded text-sm transition whitespace-nowrap">
-              Ler URL e Gerar
-            </button>
+            <button id="btnUrl" onclick="gerarPorUrl()" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm whitespace-nowrap">Ler URL e Gerar</button>
           </div>
         </div>
+
+        <!-- Tema -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">Sobre o que vamos falar?</label>
           <input id="tema" type="text" placeholder="Ex: O 4-2-3-1 do Flamengo ta funcionando?"
                  class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition" />
         </div>
+
+        <!-- Contexto -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">Contexto / pontos chave (opcional)</label>
           <textarea id="contexto" rows="3" placeholder="Fatos, estatisticas, o que aconteceu..."
                     class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition resize-none"></textarea>
         </div>
 
-        <div class="flex flex-wrap gap-2 pt-1">
-          <button id="btnFull" onclick="gerarComIA('full')" class="btn-primary text-white font-bold px-5 py-2.5 rounded text-sm flex items-center gap-2">
-            Gerar Tudo
-          </button>
-          <button id="btnLegendas" onclick="gerarComIA('legendas')" class="bg-white/10 hover:bg-white/20 border border-white/15 font-medium px-4 py-2.5 rounded text-sm transition">
-            So Legendas IG
-          </button>
-          <button id="btnTrechos" onclick="gerarComIA('trechos')" class="bg-white/10 hover:bg-white/20 border border-white/15 font-medium px-4 py-2.5 rounded text-sm transition">
-            So Trechos 300
-          </button>
-          <button onclick="gerarPromptCompleto()" class="bg-transparent hover:bg-white/5 border border-white/10 text-placar-muted hover:text-white font-medium px-4 py-2.5 rounded text-sm transition">
-            So Prompt (copiar)
-          </button>
-          <button onclick="limparTudo()" class="text-placar-muted hover:text-white text-sm px-3 py-2.5 transition ml-auto">
-            Limpar
-          </button>
+        <!-- Tom -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-2">Tom da materia</label>
+          <div class="flex flex-wrap gap-2" id="toneSelector">
+            <button onclick="selecionarTom('equilibrado')" class="tone-option text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5 selected" data-tone="equilibrado">Equilibrado</button>
+            <button onclick="selecionarTom('provocador')" class="tone-option text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5" data-tone="provocador">Provocador</button>
+            <button onclick="selecionarTom('emocional')" class="tone-option text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5" data-tone="emocional">Emocional</button>
+            <button onclick="selecionarTom('tecnico')" class="tone-option text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5" data-tone="tecnico">Tecnico</button>
+            <button onclick="selecionarTom('humorado')" class="tone-option text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5" data-tone="humorado">Bem-humorado</button>
+          </div>
         </div>
 
-        <div id="statusBox" class="hidden text-sm py-2 px-3 rounded bg-placar-black border border-white/10">
-          <span id="statusText" class="text-placar-muted"></span>
+        <!-- Botoes de acao -->
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button id="btnFull" onclick="gerarComIA('full')" class="btn-primary text-white font-bold px-5 py-2.5 rounded text-sm flex items-center gap-2">Gerar Tudo</button>
+          <button id="btnLegendas" onclick="gerarComIA('legendas')" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm">Legendas IG</button>
+          <button id="btnTrechos" onclick="gerarComIA('trechos')" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm">Trechos 300</button>
+          <button id="btnThreads" onclick="gerarComIA('threads')" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm">Threads X</button>
+          <button id="btnImgPrompt" onclick="gerarComIA('imgprompt')" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm">Prompt Imagem</button>
+          <button onclick="gerarPromptCompleto()" class="bg-transparent hover:bg-white/5 border border-white/10 text-placar-muted hover:text-white font-medium px-4 py-2.5 rounded text-sm transition">Copiar Prompt</button>
+          <button onclick="limparTudo()" class="text-placar-muted hover:text-white text-sm px-3 py-2.5 transition ml-auto">Limpar</button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingBox" class="hidden">
+          <div class="flex flex-col items-center justify-center py-6 gap-3">
+            <div class="relative">
+              <div class="ball-bounce text-3xl">&#9917;</div>
+              <div class="ball-shadow w-8 h-1.5 bg-white/20 rounded-full mx-auto mt-1"></div>
+            </div>
+            <p id="loadingText" class="text-sm text-placar-muted">Gerando conteudo no jeito RDT...</p>
+          </div>
+        </div>
+
+        <!-- Streaming preview -->
+        <div id="streamBox" class="hidden bg-placar-black border border-white/10 rounded-lg p-4 max-h-64 overflow-y-auto scroll-thin">
+          <p class="text-xs text-placar-red font-semibold uppercase tracking-wider mb-2">Escrevendo ao vivo...</p>
+          <div id="streamContent" class="text-sm text-gray-300 whitespace-pre-wrap cursor-blink"></div>
         </div>
       </div>
     </section>
 
+    <!-- Prompt section -->
     <section id="promptSection" class="hidden bg-placar-card border border-white/10 rounded-lg overflow-hidden">
       <div class="bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between">
         <h3 class="font-display text-sm uppercase tracking-wider">Prompt pronto</h3>
-        <button onclick="copiarPrompt()" class="text-xs bg-placar-red/20 text-placar-red hover:bg-placar-red/30 px-3 py-1 rounded transition font-medium">
-          Copiar Prompt
-        </button>
+        <button onclick="copiarPrompt()" class="text-xs bg-placar-red/20 text-placar-red hover:bg-placar-red/30 px-3 py-1 rounded transition font-medium">Copiar</button>
       </div>
       <div class="p-5">
         <textarea id="promptOutput" rows="10" readonly
@@ -221,57 +308,94 @@
       </div>
     </section>
 
+    <!-- Resposta manual -->
     <section class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
       <div class="bg-placar-gray px-5 py-3 border-b border-white/10">
         <h3 class="font-display text-sm uppercase tracking-wider">Resposta da IA (colar manualmente se precisar)</h3>
       </div>
       <div class="p-5 space-y-3">
-        <textarea id="respostaIA" rows="8" placeholder="Se gerou fora do site, cole a resposta completa aqui..."
+        <textarea id="respostaIA" rows="6" placeholder="Se gerou fora do site, cole a resposta completa aqui..."
                   class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition resize-none"></textarea>
         <div class="flex gap-2">
-          <button onclick="processarResposta()" class="bg-white/10 hover:bg-white/20 border border-white/15 font-medium px-4 py-2 rounded text-sm transition">
-            Processar & Organizar
-          </button>
-          <button onclick="dividir300()" class="bg-white/10 hover:bg-white/20 border border-white/15 font-medium px-4 py-2 rounded text-sm transition">
-            Dividir texto em 300 caracteres
-          </button>
+          <button onclick="processarResposta()" class="btn-secondary font-medium px-4 py-2 rounded text-sm">Processar & Organizar</button>
+          <button onclick="dividir300()" class="btn-secondary font-medium px-4 py-2 rounded text-sm">Dividir em 300 chars</button>
         </div>
       </div>
     </section>
 
-    <section id="resultados" class="hidden space-y-6">
+    <!-- Resultados com Tabs -->
+    <section id="resultados" class="hidden">
       <div class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
-        <div class="bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between">
-          <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Materia Completa</h3>
-          <button onclick="copiarTexto('materiaCompleta')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded transition">Copiar</button>
+        <!-- Tab navigation -->
+        <div class="bg-placar-gray px-5 py-0 border-b border-white/10 flex items-center gap-0 overflow-x-auto scroll-thin">
+          <button onclick="trocarTab('materia')" class="tab-btn active font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap" data-tab="materia">Materia</button>
+          <button onclick="trocarTab('trechos')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap" data-tab="trechos">Trechos 300</button>
+          <button onclick="trocarTab('instagram')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap" data-tab="instagram">Instagram</button>
+          <button onclick="trocarTab('facebook')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap" data-tab="facebook">Facebook</button>
+          <button onclick="trocarTab('threads')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap hidden" data-tab="threads" id="tabThreads">Threads X</button>
+          <button onclick="trocarTab('imgprompt')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap hidden" data-tab="imgprompt" id="tabImgPrompt">Prompt Imagem</button>
+          <!-- Share -->
+          <div class="ml-auto flex items-center gap-1 py-2">
+            <button onclick="compartilhar('whatsapp')" class="text-xs text-placar-muted hover:text-green-400 px-2 py-1 rounded transition" title="WhatsApp">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </button>
+            <button onclick="compartilhar('x')" class="text-xs text-placar-muted hover:text-white px-2 py-1 rounded transition" title="X / Twitter">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </button>
+          </div>
         </div>
-        <div class="p-5">
+
+        <!-- Tab: Materia -->
+        <div id="panel-materia" class="tab-panel active p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Materia Completa</h4>
+            <button onclick="copiarTexto('materiaCompleta')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+          </div>
           <div id="materiaCompleta" class="text-sm leading-relaxed whitespace-pre-wrap text-gray-200"></div>
         </div>
-      </div>
 
-      <div class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
-        <div class="bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between">
-          <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Trechos de ~300 caracteres</h3>
-          <span class="text-xs text-placar-muted" id="qtdTrechos"></span>
+        <!-- Tab: Trechos -->
+        <div id="panel-trechos" class="tab-panel p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Trechos de ~300 caracteres</h4>
+            <span class="text-xs text-placar-muted" id="qtdTrechos"></span>
+          </div>
+          <div id="trechos300" class="space-y-3"></div>
         </div>
-        <div id="trechos300" class="p-5 space-y-3"></div>
-      </div>
 
-      <div class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
-        <div class="bg-placar-gray px-5 py-3 border-b border-white/10">
-          <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Legendas Instagram</h3>
+        <!-- Tab: Instagram -->
+        <div id="panel-instagram" class="tab-panel p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Legendas Instagram</h4>
+          </div>
+          <div id="legendasIG" class="space-y-4"></div>
         </div>
-        <div id="legendasIG" class="p-5 space-y-4"></div>
-      </div>
 
-      <div class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
-        <div class="bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between">
-          <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Resumo Facebook</h3>
-          <button onclick="copiarTexto('resumoFB')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded transition">Copiar</button>
-        </div>
-        <div class="p-5">
+        <!-- Tab: Facebook -->
+        <div id="panel-facebook" class="tab-panel p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Resumo Facebook</h4>
+            <button onclick="copiarTexto('resumoFB')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+          </div>
           <div id="resumoFB" class="text-sm leading-relaxed whitespace-pre-wrap text-gray-200"></div>
+        </div>
+
+        <!-- Tab: Threads X -->
+        <div id="panel-threads" class="tab-panel p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Threads para X / Twitter</h4>
+            <button onclick="copiarTexto('threadsContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar tudo</button>
+          </div>
+          <div id="threadsContent" class="space-y-3"></div>
+        </div>
+
+        <!-- Tab: Image Prompt -->
+        <div id="panel-imgprompt" class="tab-panel p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Prompt de Imagem</h4>
+            <button onclick="copiarTexto('imgPromptContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+          </div>
+          <div id="imgPromptContent" class="text-sm leading-relaxed whitespace-pre-wrap text-gray-200"></div>
         </div>
       </div>
     </section>
@@ -285,13 +409,14 @@
   </main>
 
   <script>
+    // ==================== AUTH ====================
     const SENHA_CORRETA = 'rdt2026';
 
     function verificarSenha() {
       const input = document.getElementById('loginPassword');
       const erro = document.getElementById('loginError');
       if (input.value === SENHA_CORRETA) {
-        try { localStorage.setItem('rdt_auth', 'ok'); } catch(e) {}
+        safeSet('rdt_auth', 'ok');
         document.getElementById('loginGate').classList.add('hidden');
         erro.classList.add('hidden');
       } else {
@@ -302,13 +427,43 @@
     }
 
     (function checarAuth() {
-      try {
-        if (localStorage.getItem('rdt_auth') === 'ok') {
-          document.getElementById('loginGate').classList.add('hidden');
-        }
-      } catch(e) {}
+      if (safeGet('rdt_auth') === 'ok') document.getElementById('loginGate').classList.add('hidden');
     })();
 
+    // ==================== TOAST ====================
+    function toast(msg, tipo = 'success') {
+      const container = document.getElementById('toastContainer');
+      const colors = {
+        success: 'bg-green-600 border-green-500',
+        error: 'bg-red-700 border-red-600',
+        info: 'bg-placar-card border-placar-red',
+        warning: 'bg-yellow-700 border-yellow-600'
+      };
+      const icons = { success: '&#10003;', error: '&#10007;', info: '&#9432;', warning: '&#9888;' };
+      const el = document.createElement('div');
+      el.className = `toast pointer-events-auto ${colors[tipo] || colors.info} border rounded-lg px-4 py-3 shadow-xl flex items-center gap-3 max-w-sm`;
+      el.innerHTML = `<span class="text-lg">${icons[tipo] || ''}</span><span class="text-sm font-medium">${msg}</span>`;
+      container.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+      setTimeout(() => {
+        el.classList.remove('show');
+        el.classList.add('hide');
+        setTimeout(() => el.remove(), 400);
+      }, 3500);
+    }
+
+    // ==================== STORAGE ====================
+    function safeGet(key, fallback = null) {
+      try { return localStorage.getItem(key) ?? fallback; } catch (e) { return fallback; }
+    }
+    function safeSet(key, value) {
+      try { localStorage.setItem(key, value); return true; } catch (e) { return false; }
+    }
+    function safeRemove(key) {
+      try { localStorage.removeItem(key); return true; } catch (e) { return false; }
+    }
+
+    // ==================== DNA / PROMPTS ====================
     const DNA_RDT = `Voce e o redator oficial da RDT Futebol. Seu jeito de escrever e o seguinte:
 
 JEITO RDT (DNA):
@@ -327,6 +482,44 @@ Regras importantes:
 - Pode usar girias de torcida com moderacao.
 - Termine com pergunta ou provocacao inteligente que gera comentario.`;
 
+    const TONE_MODIFIERS = {
+      equilibrado: '',
+      provocador: '\n\nTOM ESPECIFICO: Seja mais provocador e ousado nesta materia. Cutuce as rivalidades, faca perguntas incomodas, lance opinioes fortes. Sempre com respeito, mas sem medo de polemizar.',
+      emocional: '\n\nTOM ESPECIFICO: Carregue mais na emocao nesta materia. Fale com o coracao do torcedor, use metaforas de paixao, sofrimento e alegria. Faca o leitor sentir o jogo na alma.',
+      tecnico: '\n\nTOM ESPECIFICO: Foque mais na analise tatica e tecnica nesta materia. Use termos taticos (linha de 4, pressing alto, transicao, etc.), analise esquemas, movimentacoes e decisoes tecnicas. Mantenha acessivel mas com profundidade.',
+      humorado: '\n\nTOM ESPECIFICO: Seja mais bem-humorado e leve nesta materia. Use ironias inteligentes, comparacoes engracadas, trocadilhos com futebol. Faca o leitor rir enquanto se informa.'
+    };
+
+    let tomSelecionado = 'equilibrado';
+
+    function selecionarTom(tom) {
+      tomSelecionado = tom;
+      document.querySelectorAll('.tone-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.tone === tom);
+      });
+    }
+
+    // ==================== TEMPLATES ====================
+    const TEMPLATES = {
+      prejogo: { tema: '', contexto: 'TIPO: Materia pre-jogo.\n\nPreencha:\n- Times que se enfrentam:\n- Campeonato e rodada:\n- Situacao na tabela:\n- Desfalques e retornos:\n- Historico do confronto:\n- Expectativa/clima:' },
+      posjogo: { tema: '', contexto: 'TIPO: Materia pos-jogo.\n\nPreencha:\n- Placar final:\n- Gols (quem fez e como):\n- Destaques positivos e negativos:\n- Lances polemicos:\n- Consequencias na tabela:\n- Proximos jogos:' },
+      transferencia: { tema: '', contexto: 'TIPO: Janela de transferencias.\n\nPreencha:\n- Jogador em questao:\n- Clube de origem e destino:\n- Valores envolvidos:\n- Status da negociacao (rumor/oficial):\n- Como o jogador se encaixa:\n- Reacao da torcida:' },
+      tatica: { tema: '', contexto: 'TIPO: Analise tatica.\n\nPreencha:\n- Time analisado:\n- Esquema tatico:\n- Pontos fortes do sistema:\n- Vulnerabilidades:\n- Jogadores-chave no esquema:\n- Comparacao com jogos anteriores:' },
+      bastidores: { tema: '', contexto: 'TIPO: Bastidores.\n\nPreencha:\n- Clube envolvido:\n- O que esta acontecendo nos bastidores:\n- Fontes (o que se sabe vs especulacao):\n- Impacto no elenco/torcida:\n- Contexto politico do clube:' },
+      polemica: { tema: '', contexto: 'TIPO: Polemica da rodada.\n\nPreencha:\n- O que aconteceu:\n- Times/jogadores envolvidos:\n- Lance(s) polemico(s):\n- O que dizem as regras:\n- Opiniao da arbitragem:\n- Repercussao:' },
+      cronica: { tema: '', contexto: 'TIPO: Cronica de jogo (narrativa literaria).\n\nPreencha:\n- Jogo (times e placar):\n- Momento marcante:\n- Emocao predominante:\n- Personagem principal:\n- Atmosfera do estadio:' }
+    };
+
+    function aplicarTemplate(tipo) {
+      const t = TEMPLATES[tipo];
+      if (!t) return;
+      document.getElementById('tema').value = t.tema;
+      document.getElementById('contexto').value = t.contexto;
+      document.getElementById('tema').focus();
+      toast('Template aplicado! Preencha os dados.', 'info');
+    }
+
+    // ==================== MODELS ====================
     const MODELS = {
       groq: [
         { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B (recomendado)' },
@@ -336,9 +529,7 @@ Regras importantes:
       ],
       deepseek: [
         { id: 'deepseek-chat', name: 'DeepSeek Chat (recomendado)' },
-        { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner' },
-        { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash' },
-        { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro' }
+        { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner' }
       ],
       openai: [
         { id: 'gpt-4o-mini', name: 'GPT-4o Mini (rapido e barato)' },
@@ -347,16 +538,6 @@ Regras importantes:
       ]
     };
 
-    function safeGet(key, fallback = null) {
-      try { return localStorage.getItem(key) ?? fallback; } catch (e) { return fallback; }
-    }
-    function safeSet(key, value) {
-      try { localStorage.setItem(key, value); return true; } catch (e) { return false; }
-    }
-    function safeRemove(key) {
-      try { localStorage.removeItem(key); return true; } catch (e) { return false; }
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
       const savedKey = safeGet('rdt_api_key');
       const savedProvider = safeGet('rdt_provider', 'groq');
@@ -364,6 +545,7 @@ Regras importantes:
       document.getElementById('provider').value = savedProvider;
       atualizarModelos();
       document.getElementById('provider').addEventListener('change', atualizarModelos);
+      atualizarBadgeHistorico();
     });
 
     function atualizarModelos() {
@@ -399,128 +581,134 @@ Regras importantes:
         return;
       }
 
-      const ok = safeSet('rdt_api_key', key) && safeSet('rdt_provider', provider);
-      feedback.textContent = ok
-        ? 'Chave salva com sucesso! Pode gerar conteudo agora.'
-        : 'Chave pronta para esta sessao. Pode gerar normalmente.';
+      safeSet('rdt_api_key', key);
+      safeSet('rdt_provider', provider);
+      feedback.textContent = 'Chave salva com sucesso!';
       feedback.className = 'text-[11px] mt-1.5 text-green-400';
       feedback.classList.remove('hidden');
+      toast('API Key salva com sucesso!', 'success');
 
-      const originalText = btn.textContent;
       btn.textContent = 'Salvo';
       btn.classList.add('bg-green-600', 'border-green-500', 'text-white');
       setTimeout(() => {
-        btn.textContent = originalText;
+        btn.textContent = 'Salvar';
         btn.classList.remove('bg-green-600', 'border-green-500', 'text-white');
       }, 2000);
     }
 
-    function getTema() {
-      return document.getElementById('tema').value.trim() || 'futebol brasileiro em geral';
-    }
-    function getContexto() {
-      return document.getElementById('contexto').value.trim();
-    }
+    // ==================== HELPERS ====================
+    function getTema() { return document.getElementById('tema').value.trim() || 'futebol brasileiro em geral'; }
+    function getContexto() { return document.getElementById('contexto').value.trim(); }
 
-    function mostrarStatus(msg, tipo = 'loading') {
-      const box = document.getElementById('statusBox');
-      const text = document.getElementById('statusText');
-      box.classList.remove('hidden');
-      text.textContent = msg;
-      if (tipo === 'loading') text.classList.add('loading-pulse');
-      else text.classList.remove('loading-pulse');
-      if (tipo === 'error') text.classList.add('text-red-400');
-      else text.classList.remove('text-red-400');
-    }
-    function esconderStatus() {
-      document.getElementById('statusBox').classList.add('hidden');
-    }
     function setBotoesDisabled(disabled) {
-      ['btnFull', 'btnLegendas', 'btnTrechos', 'btnUrl'].forEach(id => {
+      ['btnFull', 'btnLegendas', 'btnTrechos', 'btnUrl', 'btnThreads', 'btnImgPrompt'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.disabled = disabled;
       });
     }
 
+    function mostrarLoading(msg) {
+      document.getElementById('loadingBox').classList.remove('hidden');
+      document.getElementById('loadingText').textContent = msg || 'Gerando conteudo no jeito RDT...';
+    }
+    function esconderLoading() {
+      document.getElementById('loadingBox').classList.add('hidden');
+    }
+
+    // ==================== TABS ====================
+    function trocarTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+    }
+
+    // ==================== GENERATE ====================
     async function gerarPorUrl() {
       const url = document.getElementById('urlNoticia').value.trim();
-      if (!url) { alert('Cole a URL da noticia primeiro.'); return; }
+      if (!url) { toast('Cole a URL da noticia primeiro.', 'warning'); return; }
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        alert('A URL precisa comecar com http:// ou https://'); return;
+        toast('A URL precisa comecar com http:// ou https://', 'warning'); return;
       }
       const key = document.getElementById('apiKey').value.trim();
-      if (!key) { alert('Cole sua API Key e clique em Salvar antes de gerar.'); return; }
+      if (!key) { toast('Salve sua API Key antes de gerar.', 'warning'); return; }
 
       setBotoesDisabled(true);
-      mostrarStatus('Lendo a noticia da URL... aguarde.');
+      mostrarLoading('Lendo a noticia da URL...');
 
       try {
         const readerUrl = 'https://r.jina.ai/' + url;
         const resp = await fetch(readerUrl, { headers: { 'Accept': 'text/plain' } });
-        if (!resp.ok) throw new Error('Nao consegui ler a pagina. Cole o texto manualmente no campo Contexto.');
+        if (!resp.ok) throw new Error('Nao consegui ler a pagina. Cole o texto manualmente.');
 
         let textoPagina = await resp.text();
-        if (textoPagina.length > 12000) {
-          textoPagina = textoPagina.substring(0, 12000) + '\n\n[... texto cortado ...]';
-        }
+        if (textoPagina.length > 12000) textoPagina = textoPagina.substring(0, 12000) + '\n\n[... texto cortado ...]';
 
         document.getElementById('contexto').value = textoPagina;
         if (!document.getElementById('tema').value.trim()) {
           document.getElementById('tema').value = 'Analise da noticia (gerada a partir da URL)';
         }
 
-        mostrarStatus('Noticia lida! Agora gerando o conteudo no jeito RDT...');
+        toast('Noticia lida! Gerando conteudo...', 'info');
         await gerarComIA('full');
       } catch (err) {
-        console.error(err);
-        mostrarStatus('Erro ao ler URL: ' + err.message, 'error');
-        alert('Erro ao ler a URL: ' + err.message);
+        esconderLoading();
+        toast('Erro ao ler URL: ' + err.message, 'error');
       } finally {
         setBotoesDisabled(false);
       }
     }
 
+    function buildUserPrompt(modo, tema, contexto) {
+      if (modo === 'full') {
+        return `TEMA DA MATERIA: ${tema}\n\n${contexto ? `CONTEXTO / PONTOS CHAVE:\n${contexto}\n` : ''}\nTAREFA:\nGere o conteudo completo no formato abaixo (respeite exatamente os marcadores):\n\n=== MATERIA COMPLETA ===\n(Escreva uma materia de 400 a 700 palavras no jeito RDT sobre o tema. Comece direto, sem titulo formal. Seja envolvente.)\n\n=== TRECHOS 300 ===\n(Divida a materia acima em trechos de no maximo 300 caracteres cada. Cada trecho deve fazer sentido sozinho e terminar em ponto final ou interrogacao. Numere: 1), 2), 3)...)\n\n=== LEGENDAS INSTAGRAM ===\n(Gere 4 legendas diferentes otimizadas para viralizar no Instagram.\nCada legenda deve ter:\n- Gancho forte nas primeiras palavras\n- Emocao ou provocacao inteligente\n- 1-2 emojis no maximo\n- Call-to-action ou pergunta no final\n- 4 a 8 hashtags relevantes no final\nSepare cada legenda com ---)\n\n=== RESUMO FACEBOOK ===\n(Escreva um resumo de 2 a 4 paragrafos curtos para Facebook, com tom de resenha, terminando com uma pergunta forte que incentive comentarios e compartilhamentos.)`;
+      } else if (modo === 'legendas') {
+        return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nGere 5 legendas de Instagram no jeito RDT, otimizadas para viralizar.\nCada legenda deve ter:\n- Gancho forte nas primeiras palavras\n- Emocao ou provocacao inteligente (sem ofender)\n- 1-2 emojis no maximo\n- Call-to-action ou pergunta no final\n- 4 a 8 hashtags relevantes\n\nSepare cada legenda com ---\nComece direto, sem introducao.`;
+      } else if (modo === 'trechos') {
+        return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nEscreva uma materia curta (250-400 palavras) no jeito RDT e em seguida divida-a em trechos de no maximo 300 caracteres.\nCada trecho deve fazer sentido sozinho.\n\nFormato:\n=== MATERIA COMPLETA ===\n(texto)\n\n=== TRECHOS 300 ===\n1) ...\n2) ...\n3) ...`;
+      } else if (modo === 'threads') {
+        return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nCrie uma thread para X (Twitter) no jeito RDT sobre esse tema.\n\nRegras:\n- Cada tweet deve ter no MAXIMO 280 caracteres\n- O primeiro tweet deve ser o gancho mais forte (viral)\n- Gere entre 5 e 10 tweets encadeados\n- Use emojis com moderacao (1 por tweet no maximo)\n- O ultimo tweet deve ter call-to-action (RT, seguir, comentar)\n- Numere cada tweet: 1/, 2/, 3/...\n\nFormato:\n=== THREAD X ===\n1/ [tweet]\n2/ [tweet]\n...`;
+      } else if (modo === 'imgprompt') {
+        return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nCrie 3 prompts de imagem (para Midjourney ou DALL-E) que serviriam como capa/ilustracao para uma materia sobre esse tema.\n\nRegras:\n- Prompts em ingles (padrao das ferramentas)\n- Estilo editorial esportivo, dramatico, cinematografico\n- Inclua detalhes de iluminacao, composicao e mood\n- Cada prompt deve ter uma abordagem visual diferente\n- NAO inclua nomes reais de jogadores ou logos de clubes nos prompts\n\nFormato:\n=== PROMPTS DE IMAGEM ===\n1) [prompt]\n2) [prompt]\n3) [prompt]`;
+      }
+      return '';
+    }
+
     async function gerarComIA(modo = 'full') {
       const key = document.getElementById('apiKey').value.trim();
-      if (!key) { alert('Cole sua API Key e clique em Salvar.'); return; }
+      if (!key) { toast('Salve sua API Key primeiro.', 'warning'); return; }
 
       const tema = getTema();
       const contexto = getContexto();
       const provider = document.getElementById('provider').value;
       const model = document.getElementById('model').value;
-
-      let userPrompt = '';
-      if (modo === 'full') {
-        userPrompt = `TEMA DA MATERIA: ${tema}\n\n${contexto ? `CONTEXTO / PONTOS CHAVE:\n${contexto}\n` : ''}\nTAREFA:\nGere o conteudo completo no formato abaixo (respeite exatamente os marcadores):\n\n=== MATERIA COMPLETA ===\n(Escreva uma materia de 400 a 700 palavras no jeito RDT sobre o tema. Comece direto, sem titulo formal. Seja envolvente.)\n\n=== TRECHOS 300 ===\n(Divida a materia acima em trechos de no maximo 300 caracteres cada. Cada trecho deve fazer sentido sozinho e terminar em ponto final ou interrogacao. Numere: 1), 2), 3)...)\n\n=== LEGENDAS INSTAGRAM ===\n(Gere 4 legendas diferentes otimizadas para viralizar no Instagram.\nCada legenda deve ter:\n- Gancho forte nas primeiras palavras\n- Emocao ou provocacao inteligente\n- 1-2 emojis no maximo\n- Call-to-action ou pergunta no final\n- 4 a 8 hashtags relevantes no final\nSepare cada legenda com ---)\n\n=== RESUMO FACEBOOK ===\n(Escreva um resumo de 2 a 4 paragrafos curtos para Facebook, com tom de resenha, terminando com uma pergunta forte que incentive comentarios e compartilhamentos.)`;
-      } else if (modo === 'legendas') {
-        userPrompt = `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nGere 5 legendas de Instagram no jeito RDT, otimizadas para viralizar.\nCada legenda deve ter:\n- Gancho forte nas primeiras palavras\n- Emocao ou provocacao inteligente (sem ofender)\n- 1-2 emojis no maximo\n- Call-to-action ou pergunta no final\n- 4 a 8 hashtags relevantes\n\nSepare cada legenda com ---\nComece direto, sem introducao.`;
-      } else if (modo === 'trechos') {
-        userPrompt = `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nEscreva uma materia curta (250-400 palavras) no jeito RDT e em seguida divida-a em trechos de no maximo 300 caracteres.\nCada trecho deve fazer sentido sozinho.\n\nFormato:\n=== MATERIA COMPLETA ===\n(texto)\n\n=== TRECHOS 300 ===\n1) ...\n2) ...\n3) ...`;
-      }
+      const systemPrompt = DNA_RDT + (TONE_MODIFIERS[tomSelecionado] || '');
+      const userPrompt = buildUserPrompt(modo, tema, contexto);
 
       setBotoesDisabled(true);
-      mostrarStatus('Gerando conteudo no jeito RDT... aguarde alguns segundos.');
+      mostrarLoading('Gerando conteudo no jeito RDT...');
+
+      const streamBox = document.getElementById('streamBox');
+      const streamContent = document.getElementById('streamContent');
+      streamBox.classList.remove('hidden');
+      streamContent.textContent = '';
 
       try {
-        let url;
-        if (provider === 'groq') url = 'https://api.groq.com/openai/v1/chat/completions';
-        else if (provider === 'deepseek') url = 'https://api.deepseek.com/v1/chat/completions';
-        else url = 'https://api.openai.com/v1/chat/completions';
+        let apiUrl;
+        if (provider === 'groq') apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+        else if (provider === 'deepseek') apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+        else apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-        const response = await fetch(url, {
+        const response = await fetch(apiUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${key}`
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
           body: JSON.stringify({
             model: model,
             messages: [
-              { role: 'system', content: DNA_RDT },
+              { role: 'system', content: systemPrompt },
               { role: 'user', content: userPrompt }
             ],
             temperature: 0.75,
-            max_tokens: 3500
+            max_tokens: 4000,
+            stream: true
           })
         });
 
@@ -529,51 +717,61 @@ Regras importantes:
           throw new Error(err.error?.message || `Erro ${response.status}`);
         }
 
-        const data = await response.json();
-        const content = data.choices?.[0]?.message?.content || '';
-        if (!content) throw new Error('A IA nao retornou conteudo.');
+        let fullContent = '';
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
 
-        document.getElementById('respostaIA').value = content;
-        processarResposta();
-        mostrarStatus('Conteudo gerado com sucesso!', 'ok');
-        setTimeout(esconderStatus, 3000);
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data: ') || trimmed === 'data: [DONE]') continue;
+            try {
+              const json = JSON.parse(trimmed.slice(6));
+              const delta = json.choices?.[0]?.delta?.content || '';
+              if (delta) {
+                fullContent += delta;
+                streamContent.textContent = fullContent;
+                streamBox.scrollTop = streamBox.scrollHeight;
+              }
+            } catch (e) {}
+          }
+        }
+
+        if (!fullContent) throw new Error('A IA nao retornou conteudo.');
+
+        streamBox.classList.add('hidden');
+        document.getElementById('respostaIA').value = fullContent;
+        processarResposta(modo);
+        esconderLoading();
+        toast('Conteudo gerado com sucesso!', 'success');
+
+        salvarNoHistorico(tema, modo, fullContent, provider, model);
       } catch (err) {
-        console.error(err);
-        mostrarStatus('Erro: ' + err.message, 'error');
-        alert('Erro ao gerar: ' + err.message);
+        streamBox.classList.add('hidden');
+        esconderLoading();
+        toast('Erro: ' + err.message, 'error');
       } finally {
         setBotoesDisabled(false);
       }
     }
 
-    function gerarPromptCompleto() {
-      const tema = getTema();
-      const contexto = getContexto();
-      const prompt = `${DNA_RDT}\n\n---\n\nTEMA DA MATERIA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\n---\n\nTAREFA:\nGere o conteudo completo no formato abaixo...\n\n=== MATERIA COMPLETA ===\n...\n=== TRECHOS 300 ===\n...\n=== LEGENDAS INSTAGRAM ===\n...\n=== RESUMO FACEBOOK ===\n...`;
-      document.getElementById('promptOutput').value = prompt;
-      document.getElementById('promptSection').classList.remove('hidden');
-    }
-
-    function copiarPrompt() {
-      const el = document.getElementById('promptOutput');
-      el.select();
-      navigator.clipboard.writeText(el.value).then(() => alert('Prompt copiado!'));
-    }
-
-    function limparTudo() {
-      document.getElementById('tema').value = '';
-      document.getElementById('contexto').value = '';
-      document.getElementById('urlNoticia').value = '';
-      document.getElementById('promptOutput').value = '';
-      document.getElementById('respostaIA').value = '';
-      document.getElementById('promptSection').classList.add('hidden');
-      document.getElementById('resultados').classList.add('hidden');
-      esconderStatus();
-    }
-
-    function processarResposta() {
+    // ==================== PROCESS ====================
+    function processarResposta(modo) {
       const texto = document.getElementById('respostaIA').value.trim();
-      if (!texto) { alert('Nenhum conteudo para processar.'); return; }
+      if (!texto) { toast('Nenhum conteudo para processar.', 'warning'); return; }
+
+      if (modo === 'threads') {
+        processarThreads(texto);
+        return;
+      }
+      if (modo === 'imgprompt') {
+        processarImgPrompt(texto);
+        return;
+      }
 
       const materia = extrairSecao(texto, '=== MATERIA COMPLETA ===', '=== TRECHOS 300 ===') ||
                       extrairSecao(texto, 'MATERIA COMPLETA', 'TRECHOS') || texto;
@@ -598,14 +796,7 @@ Regras importantes:
         const clean = t.trim().replace(/`/g, "'");
         const div = document.createElement('div');
         div.className = 'chunk-card bg-placar-black border border-white/10 rounded-lg p-4';
-        div.innerHTML = `
-          <div class="flex justify-between items-start mb-2">
-            <span class="text-xs font-bold text-placar-red">Trecho ${i + 1}</span>
-            <span class="text-xs text-placar-muted">${clean.length} caracteres</span>
-          </div>
-          <p class="text-sm leading-relaxed">${clean}</p>
-          <button onclick='copiarString(${JSON.stringify(clean)})' class="mt-3 text-xs text-placar-red hover:underline">Copiar trecho</button>
-        `;
+        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">Trecho ${i + 1}</span><span class="text-xs text-placar-muted">${clean.length} chars</span></div><p class="text-sm leading-relaxed">${escapeHtml(clean)}</p><button onclick='copiarString(${JSON.stringify(clean)})' class="mt-3 text-xs text-placar-red hover:underline">Copiar</button>`;
         containerTrechos.appendChild(div);
       });
       document.getElementById('qtdTrechos').textContent = `${trechos.length} trechos`;
@@ -619,13 +810,7 @@ Regras importantes:
           const clean = leg.trim();
           const div = document.createElement('div');
           div.className = 'bg-placar-black border border-white/10 rounded-lg p-4';
-          div.innerHTML = `
-            <div class="flex justify-between mb-2">
-              <span class="text-xs font-bold text-placar-red">Legenda ${i + 1}</span>
-              <button onclick='copiarString(${JSON.stringify(clean)})' class="text-xs text-placar-muted hover:text-white">Copiar</button>
-            </div>
-            <p class="text-sm whitespace-pre-wrap">${clean}</p>
-          `;
+          div.innerHTML = `<div class="flex justify-between mb-2"><span class="text-xs font-bold text-placar-red">Legenda ${i + 1}</span><button onclick='copiarString(${JSON.stringify(clean)})' class="text-xs text-placar-muted hover:text-white">Copiar</button></div><p class="text-sm whitespace-pre-wrap">${escapeHtml(clean)}</p>`;
           containerLegendas.appendChild(div);
         });
       } else {
@@ -633,32 +818,65 @@ Regras importantes:
       }
 
       document.getElementById('resumoFB').textContent = resumo ? resumo.trim() : 'Nenhum resumo detectado.';
+
       document.getElementById('resultados').classList.remove('hidden');
+      trocarTab('materia');
       document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function processarThreads(texto) {
+      const raw = extrairSecao(texto, '=== THREAD X ===', null) || texto;
+      const tweets = raw.split(/\n\s*\d+[\/\)]\s*/).filter(t => t.trim().length > 5);
+      const container = document.getElementById('threadsContent');
+      container.innerHTML = '';
+
+      tweets.forEach((tw, i) => {
+        const clean = tw.trim();
+        const isOver = clean.length > 280;
+        const div = document.createElement('div');
+        div.className = 'bg-placar-black border border-white/10 rounded-lg p-4';
+        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">${i + 1}/${tweets.length}</span><div class="flex items-center gap-2"><span class="text-xs ${isOver ? 'text-red-400' : 'text-placar-muted'}">${clean.length}/280</span><button onclick='copiarString(${JSON.stringify(clean)})' class="text-xs text-placar-muted hover:text-white">Copiar</button></div></div><p class="text-sm leading-relaxed">${escapeHtml(clean)}</p>`;
+        container.appendChild(div);
+      });
+
+      document.getElementById('tabThreads').classList.remove('hidden');
+      document.getElementById('resultados').classList.remove('hidden');
+      trocarTab('threads');
+      document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function processarImgPrompt(texto) {
+      const raw = extrairSecao(texto, '=== PROMPTS DE IMAGEM ===', null) || texto;
+      document.getElementById('imgPromptContent').textContent = raw.trim();
+      document.getElementById('tabImgPrompt').classList.remove('hidden');
+      document.getElementById('resultados').classList.remove('hidden');
+      trocarTab('imgprompt');
+      document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ==================== UTILITIES ====================
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
     }
 
     function dividir300() {
       const texto = document.getElementById('respostaIA').value.trim() || document.getElementById('materiaCompleta').textContent;
-      if (!texto) { alert('Cole um texto primeiro.'); return; }
+      if (!texto) { toast('Cole um texto primeiro.', 'warning'); return; }
       const trechos = dividirEm300(texto);
       const container = document.getElementById('trechos300');
       container.innerHTML = '';
       trechos.forEach((t, i) => {
         const div = document.createElement('div');
         div.className = 'chunk-card bg-placar-black border border-white/10 rounded-lg p-4';
-        div.innerHTML = `
-          <div class="flex justify-between items-start mb-2">
-            <span class="text-xs font-bold text-placar-red">Trecho ${i + 1}</span>
-            <span class="text-xs text-placar-muted">${t.length} caracteres</span>
-          </div>
-          <p class="text-sm leading-relaxed">${t}</p>
-          <button onclick='copiarString(${JSON.stringify(t)})' class="mt-3 text-xs text-placar-red hover:underline">Copiar trecho</button>
-        `;
+        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">Trecho ${i + 1}</span><span class="text-xs text-placar-muted">${t.length} chars</span></div><p class="text-sm leading-relaxed">${escapeHtml(t)}</p><button onclick='copiarString(${JSON.stringify(t)})' class="mt-3 text-xs text-placar-red hover:underline">Copiar</button>`;
         container.appendChild(div);
       });
       document.getElementById('qtdTrechos').textContent = `${trechos.length} trechos`;
       document.getElementById('resultados').classList.remove('hidden');
       document.getElementById('materiaCompleta').textContent = texto;
+      trocarTab('trechos');
     }
 
     function dividirEm300(texto) {
@@ -681,9 +899,7 @@ Regras importantes:
               resto = resto.substring(corte).trim();
             }
             atual = resto;
-          } else {
-            atual = frase;
-          }
+          } else { atual = frase; }
         }
       }
       if (atual) trechos.push(atual);
@@ -700,12 +916,146 @@ Regras importantes:
       return texto.substring(start, j).trim();
     }
 
+    function gerarPromptCompleto() {
+      const tema = getTema();
+      const contexto = getContexto();
+      const prompt = `${DNA_RDT}${TONE_MODIFIERS[tomSelecionado] || ''}\n\n---\n\nTEMA DA MATERIA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\n---\n\nTAREFA:\nGere o conteudo completo no formato abaixo...\n\n=== MATERIA COMPLETA ===\n...\n=== TRECHOS 300 ===\n...\n=== LEGENDAS INSTAGRAM ===\n...\n=== RESUMO FACEBOOK ===\n...`;
+      document.getElementById('promptOutput').value = prompt;
+      document.getElementById('promptSection').classList.remove('hidden');
+      toast('Prompt gerado! Clique em Copiar.', 'info');
+    }
+
+    function limparTudo() {
+      ['tema', 'contexto', 'urlNoticia', 'promptOutput', 'respostaIA'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('promptSection').classList.add('hidden');
+      document.getElementById('resultados').classList.add('hidden');
+      document.getElementById('streamBox').classList.add('hidden');
+      esconderLoading();
+      toast('Tudo limpo!', 'info');
+    }
+
+    // ==================== COPY & SHARE ====================
     function copiarTexto(id) {
       const el = document.getElementById(id);
-      navigator.clipboard.writeText(el.innerText || el.textContent).then(() => alert('Copiado!'));
+      navigator.clipboard.writeText(el.innerText || el.textContent).then(() => toast('Copiado!', 'success'));
     }
     function copiarString(str) {
-      navigator.clipboard.writeText(str).then(() => alert('Copiado!'));
+      navigator.clipboard.writeText(str).then(() => toast('Copiado!', 'success'));
+    }
+    function copiarPrompt() {
+      const el = document.getElementById('promptOutput');
+      navigator.clipboard.writeText(el.value).then(() => toast('Prompt copiado!', 'success'));
+    }
+
+    function compartilhar(plataforma) {
+      const materia = document.getElementById('materiaCompleta').textContent || '';
+      const resumo = document.getElementById('resumoFB').textContent || '';
+      const texto = resumo || materia.substring(0, 500);
+      if (!texto) { toast('Gere uma materia antes de compartilhar.', 'warning'); return; }
+
+      const encoded = encodeURIComponent(texto);
+      if (plataforma === 'whatsapp') {
+        window.open('https://wa.me/?text=' + encoded, '_blank');
+      } else if (plataforma === 'x') {
+        const tweet = encodeURIComponent(texto.substring(0, 270) + '...');
+        window.open('https://twitter.com/intent/tweet?text=' + tweet, '_blank');
+      }
+    }
+
+    // ==================== HISTORY ====================
+    function getHistorico() {
+      try { return JSON.parse(safeGet('rdt_historico', '[]')); } catch(e) { return []; }
+    }
+    function salvarHistoricoData(data) {
+      safeSet('rdt_historico', JSON.stringify(data));
+      atualizarBadgeHistorico();
+    }
+
+    function salvarNoHistorico(tema, modo, conteudo, provider, model) {
+      const hist = getHistorico();
+      hist.unshift({
+        id: Date.now(),
+        data: new Date().toISOString(),
+        tema: tema,
+        modo: modo,
+        provider: provider,
+        model: model,
+        conteudo: conteudo.substring(0, 8000),
+        preview: conteudo.substring(0, 150)
+      });
+      if (hist.length > 50) hist.length = 50;
+      salvarHistoricoData(hist);
+    }
+
+    function atualizarBadgeHistorico() {
+      const badge = document.getElementById('histBadge');
+      const count = getHistorico().length;
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function abrirHistorico() {
+      document.getElementById('drawerOverlay').classList.add('open');
+      document.getElementById('drawerPanel').classList.add('open');
+      renderizarHistorico();
+    }
+    function fecharHistorico() {
+      document.getElementById('drawerOverlay').classList.remove('open');
+      document.getElementById('drawerPanel').classList.remove('open');
+    }
+
+    function renderizarHistorico() {
+      const busca = (document.getElementById('histSearch').value || '').toLowerCase();
+      const hist = getHistorico().filter(h => !busca || h.tema.toLowerCase().includes(busca) || h.preview.toLowerCase().includes(busca));
+      const list = document.getElementById('histList');
+      const empty = document.getElementById('histEmpty');
+
+      if (hist.length === 0) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      list.innerHTML = hist.map(h => {
+        const d = new Date(h.data);
+        const dataStr = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const modos = { full: 'Completo', legendas: 'Legendas', trechos: 'Trechos', threads: 'Thread X', imgprompt: 'Img Prompt' };
+        return `<div class="bg-placar-black border border-white/10 rounded-lg p-4 hover:border-placar-red/50 transition cursor-pointer" onclick="carregarDoHistorico(${h.id})">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-placar-red font-semibold">${modos[h.modo] || h.modo}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-placar-muted">${dataStr}</span>
+              <button onclick="event.stopPropagation(); removerDoHistorico(${h.id})" class="text-placar-muted hover:text-red-400 text-xs" title="Remover">&times;</button>
+            </div>
+          </div>
+          <p class="text-sm font-medium mb-1 truncate">${escapeHtml(h.tema)}</p>
+          <p class="text-xs text-placar-muted line-clamp-2">${escapeHtml(h.preview)}...</p>
+          <p class="text-[10px] text-placar-muted mt-1">${h.provider} / ${h.model}</p>
+        </div>`;
+      }).join('');
+    }
+
+    function carregarDoHistorico(id) {
+      const hist = getHistorico();
+      const item = hist.find(h => h.id === id);
+      if (!item) return;
+      document.getElementById('tema').value = item.tema;
+      document.getElementById('respostaIA').value = item.conteudo;
+      processarResposta(item.modo);
+      fecharHistorico();
+      toast('Materia carregada do historico!', 'info');
+    }
+
+    function removerDoHistorico(id) {
+      const hist = getHistorico().filter(h => h.id !== id);
+      salvarHistoricoData(hist);
+      renderizarHistorico();
+      toast('Removido do historico.', 'info');
     }
   </script>
 </body>
