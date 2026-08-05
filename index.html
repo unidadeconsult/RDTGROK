@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RDT | Futebol com Alma de Arquibancada</title>
+  <meta name="description" content="RDT Futebol - Gere conteudo esportivo com IA no estilo arquibancada. Artigos, legendas, threads e mais.">
+  <meta name="theme-color" content="#C8102E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -34,12 +39,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ===== BASE DARK ===== */
-    :root { --bg: #0A0A0A; --card: #111111; --card-alt: #1C1C1C; --text: #ffffff; --text-secondary: #e5e5e5; --text-muted: #A0A0A0; --border: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.15); --input-bg: #0A0A0A; --overlay: rgba(0,0,0,0.6); --drawer-bg: #111; --chunk-hover: #C8102E; }
+    :root { --bg: #0A0A0A; --card: #111111; --card-alt: #1C1C1C; --text: #ffffff; --text-secondary: #e5e5e5; --text-muted: #A0A0A0; --border: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.15); --input-bg: #0A0A0A; --overlay: rgba(0,0,0,0.6); --drawer-bg: #111; --chunk-hover: #C8102E; --glow: rgba(200,16,46,0.15); }
     body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
-    .magazine-header { background: linear-gradient(180deg, #C8102E 0%, #9B0C24 100%); }
+    .magazine-header { background: linear-gradient(135deg, #C8102E 0%, #9B0C24 50%, #C8102E 100%); background-size: 200% 200%; animation: headerShimmer 8s ease-in-out infinite; }
+    @keyframes headerShimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
 
     /* ===== LIGHT THEME ===== */
-    [data-theme="light"] { --bg: #F5F0E8; --card: #ffffff; --card-alt: #f0ebe3; --text: #1a1a1a; --text-secondary: #333333; --text-muted: #666666; --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.15); --input-bg: #ffffff; --overlay: rgba(0,0,0,0.3); --drawer-bg: #fff; --chunk-hover: #C8102E; }
+    [data-theme="light"] { --bg: #F5F0E8; --card: #ffffff; --card-alt: #f0ebe3; --text: #1a1a1a; --text-secondary: #333333; --text-muted: #666666; --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.15); --input-bg: #ffffff; --overlay: rgba(0,0,0,0.3); --drawer-bg: #fff; --chunk-hover: #C8102E; --glow: rgba(200,16,46,0.08); }
     [data-theme="light"] .bg-placar-black { background: var(--input-bg) !important; }
     [data-theme="light"] .bg-placar-card { background: var(--card) !important; }
     [data-theme="light"] .bg-placar-gray { background: var(--card-alt) !important; }
@@ -61,16 +67,20 @@
     [data-theme="light"] #loginGate { background: var(--bg) !important; }
     [data-theme="light"] .toast { color: white !important; }
     [data-theme="light"] textarea::-webkit-scrollbar-track, [data-theme="light"] .scroll-thin::-webkit-scrollbar-track { background: var(--card-alt); }
+    [data-theme="light"] .fullscreen-modal { background: var(--bg) !important; }
 
     /* ===== COMPONENTS ===== */
     .chunk-card { transition: all 0.2s ease; }
-    .chunk-card:hover { transform: translateY(-2px); border-color: var(--chunk-hover); }
+    .chunk-card:hover { transform: translateY(-2px); border-color: var(--chunk-hover); box-shadow: 0 4px 20px var(--glow); }
     textarea::-webkit-scrollbar, .scroll-thin::-webkit-scrollbar { width: 6px; }
     textarea::-webkit-scrollbar-track, .scroll-thin::-webkit-scrollbar-track { background: #1C1C1C; }
     textarea::-webkit-scrollbar-thumb, .scroll-thin::-webkit-scrollbar-thumb { background: #C8102E; border-radius: 3px; }
-    .btn-primary { background: #C8102E; transition: all 0.2s; }
-    .btn-primary:hover { background: #E30613; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: linear-gradient(135deg, #C8102E, #E30613); transition: all 0.2s; position: relative; overflow: hidden; }
+    .btn-primary:hover { background: linear-gradient(135deg, #E30613, #C8102E); box-shadow: 0 0 20px rgba(200,16,46,0.4); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .btn-primary::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform: translateX(-100%); }
+    .btn-primary:not(:disabled):hover::after { animation: btnShine 0.6s ease; }
+    @keyframes btnShine { to { transform: translateX(100%); } }
     .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s; }
     .btn-secondary:hover { background: rgba(255,255,255,0.2); }
     .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -87,6 +97,11 @@
     @keyframes shadow-pulse { 0%, 100% { transform: scaleX(1); opacity: 0.3; } 50% { transform: scaleX(0.6); opacity: 0.1; } }
     .ball-bounce { animation: bounce-ball 0.6s ease-in-out infinite; }
     .ball-shadow { animation: shadow-pulse 0.6s ease-in-out infinite; }
+
+    /* Progress bar */
+    @keyframes progress-indeterminate { 0%{left:-40%} 100%{left:100%} }
+    .progress-bar { position: relative; height: 3px; background: rgba(200,16,46,0.2); overflow: hidden; border-radius: 2px; }
+    .progress-bar::after { content:''; position: absolute; top:0; left:-40%; width:40%; height:100%; background: linear-gradient(90deg, transparent, #C8102E, transparent); animation: progress-indeterminate 1.2s ease-in-out infinite; }
 
     /* Streaming */
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
@@ -115,7 +130,7 @@
 
     /* Collapsible */
     .collapse-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-    .collapse-content.open { max-height: 500px; }
+    .collapse-content.open { max-height: 600px; }
     .collapse-arrow { transition: transform 0.3s; }
     .collapse-arrow.open { transform: rotate(180deg); }
 
@@ -129,6 +144,59 @@
     /* Kbd hint */
     kbd { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 3px; padding: 1px 5px; font-size: 10px; font-family: inherit; }
     [data-theme="light"] kbd { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.15); }
+
+    /* Char counter */
+    .char-counter { font-size: 10px; text-align: right; margin-top: 2px; transition: color 0.2s; }
+    .char-counter.warn { color: #f59e0b; }
+    .char-counter.over { color: #ef4444; }
+
+    /* Editable content */
+    .editable-content { outline: none; border-radius: 4px; padding: 2px; transition: box-shadow 0.2s; }
+    .editable-content:focus { box-shadow: inset 0 0 0 1px rgba(200,16,46,0.4); }
+    .edit-indicator { font-size: 10px; opacity: 0; transition: opacity 0.2s; }
+    .editable-content:focus ~ .edit-indicator,
+    .editable-content:hover ~ .edit-indicator { opacity: 1; }
+
+    /* Fullscreen modal */
+    .fullscreen-modal { position: fixed; inset: 0; z-index: 300; background: var(--bg); overflow-y: auto; transform: scale(0.95); opacity: 0; transition: all 0.3s ease; pointer-events: none; }
+    .fullscreen-modal.open { transform: scale(1); opacity: 1; pointer-events: auto; }
+
+    /* Scroll to top */
+    .scroll-top-btn { position: fixed; bottom: 24px; right: 24px; z-index: 100; width: 44px; height: 44px; border-radius: 50%; background: #C8102E; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(200,16,46,0.4); cursor: pointer; opacity: 0; transform: translateY(20px); transition: all 0.3s; }
+    .scroll-top-btn.visible { opacity: 1; transform: translateY(0); }
+    .scroll-top-btn:hover { background: #E30613; transform: translateY(-2px) !important; }
+
+    /* Connection test */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 0.8s linear infinite; }
+
+    /* Favorite star */
+    .fav-star { cursor: pointer; transition: all 0.15s; }
+    .fav-star:hover { transform: scale(1.2); }
+    .fav-star.active { color: #fbbf24; }
+
+    /* Section reveal animation */
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: slideUp 0.4s ease-out; }
+
+    /* Provider key indicator */
+    .key-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .key-dot.saved { background: #22c55e; }
+    .key-dot.missing { background: #ef4444; }
+
+    /* Print styles */
+    @media print {
+      .magazine-header, #loginGate, .drawer-overlay, .drawer-panel, .toast, .scroll-top-btn,
+      button, .btn-primary, .btn-secondary, #loadingBox, #streamBox, .tab-btn,
+      .fullscreen-modal, footer, kbd, .stat-pill { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .tab-panel { display: block !important; page-break-inside: avoid; }
+      .tab-panel + .tab-panel::before { content: ''; display: block; border-top: 1px solid #ccc; margin: 1.5rem 0; }
+      #resultados { display: block !important; }
+      .bg-placar-card, .bg-placar-black, .bg-placar-gray { background: white !important; border-color: #ddd !important; }
+      .text-placar-red { color: #C8102E !important; }
+      * { color: #111 !important; }
+    }
   </style>
 </head>
 <body class="font-sans min-h-screen">
@@ -152,6 +220,23 @@
     </div>
   </div>
 
+  <!-- Fullscreen modal -->
+  <div id="fullscreenModal" class="fullscreen-modal">
+    <div class="max-w-4xl mx-auto px-4 sm:px-8 py-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="font-display text-lg uppercase tracking-wider text-placar-red">Modo Leitura</h2>
+        <div class="flex items-center gap-2">
+          <button onclick="imprimirConteudo()" class="btn-secondary px-3 py-1.5 rounded text-xs flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            Imprimir
+          </button>
+          <button onclick="fecharFullscreen()" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded text-xs transition">Fechar &times;</button>
+        </div>
+      </div>
+      <div id="fullscreenContent" class="text-base leading-relaxed whitespace-pre-wrap"></div>
+    </div>
+  </div>
+
   <!-- History drawer -->
   <div id="drawerOverlay" class="drawer-overlay" onclick="fecharHistorico()"></div>
   <div id="drawerPanel" class="drawer-panel">
@@ -163,9 +248,18 @@
       </div>
     </div>
     <div class="p-4">
-      <input id="histSearch" type="text" placeholder="Buscar no historico..."
-             class="w-full bg-placar-black border border-white/15 rounded px-3 py-2 text-sm mb-4 focus:outline-none focus:border-placar-red"
-             oninput="renderizarHistorico()" />
+      <div class="flex gap-2 mb-4">
+        <input id="histSearch" type="text" placeholder="Buscar no historico..."
+               class="flex-1 bg-placar-black border border-white/15 rounded px-3 py-2 text-sm focus:outline-none focus:border-placar-red"
+               oninput="renderizarHistorico()" />
+        <select id="histFilter" class="bg-placar-black border border-white/15 rounded px-2 py-2 text-xs focus:outline-none focus:border-placar-red" onchange="renderizarHistorico()">
+          <option value="all">Todos</option>
+          <option value="fav">Favoritos</option>
+          <option value="full">Completo</option>
+          <option value="legendas">Legendas</option>
+          <option value="threads">Threads</option>
+        </select>
+      </div>
       <div id="histList" class="space-y-3"></div>
       <div id="histEmpty" class="text-center text-placar-muted text-sm py-10 hidden">Nenhuma materia salva ainda.</div>
     </div>
@@ -213,7 +307,7 @@
   <main class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-5 sm:space-y-6">
 
     <!-- Intro -->
-    <section class="border-l-4 border-placar-red bg-placar-card p-4 sm:p-5">
+    <section class="border-l-4 border-placar-red bg-placar-card p-4 sm:p-5 animate-in">
       <h2 class="font-display text-xl sm:text-2xl uppercase tracking-tight mb-2">Escreva futebol do jeito RDT</h2>
       <p class="text-placar-muted text-sm leading-relaxed max-w-3xl">
         Humano, direto, envolvente e com alma de arquibancada. Informacao + opiniao + emocao,
@@ -230,7 +324,11 @@
           <span id="configStatus" class="text-[10px] text-green-400 hidden">Configurado</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-[10px] text-placar-muted hidden sm:inline">A chave fica so no seu navegador</span>
+          <div class="flex items-center gap-1.5 hidden sm:flex" id="keyIndicators">
+            <span class="text-[10px] text-placar-muted">Groq</span><span class="key-dot missing" id="dotGroq"></span>
+            <span class="text-[10px] text-placar-muted ml-1">DS</span><span class="key-dot missing" id="dotDeepseek"></span>
+            <span class="text-[10px] text-placar-muted ml-1">OAI</span><span class="key-dot missing" id="dotOpenai"></span>
+          </div>
           <svg class="collapse-arrow open w-4 h-4 text-placar-muted" id="configArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </div>
       </button>
@@ -251,14 +349,17 @@
             </div>
           </div>
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">API Key</label>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">API Key para <span id="providerLabel">Groq</span></label>
             <div class="flex gap-2">
               <input id="apiKey" type="password" placeholder="Cole sua chave (gsk_... ou sk-...)"
                      class="flex-1 bg-placar-black border border-white/15 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-placar-red font-mono" />
               <button id="btnSalvarKey" onclick="salvarKey()" class="btn-secondary px-4 py-2.5 rounded text-xs font-semibold min-w-[80px]">Salvar</button>
+              <button id="btnTestarKey" onclick="testarConexao()" class="btn-secondary px-3 py-2.5 rounded text-xs font-semibold" title="Testar conexao">
+                <svg id="testIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </button>
             </div>
             <p id="keyFeedback" class="text-[11px] mt-1.5 hidden"></p>
-            <p class="text-[11px] text-placar-muted mt-1.5">Groq: console.groq.com | DeepSeek: platform.deepseek.com | OpenAI: platform.openai.com</p>
+            <p class="text-[11px] text-placar-muted mt-1.5">Cada provedor salva sua chave separadamente. Groq: console.groq.com | DeepSeek: platform.deepseek.com | OpenAI: platform.openai.com</p>
           </div>
         </div>
       </div>
@@ -306,7 +407,9 @@
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">Contexto / pontos chave (opcional)</label>
           <textarea id="contexto" rows="3" placeholder="Fatos, estatisticas, o que aconteceu..."
-                    class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition resize-none"></textarea>
+                    class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition resize-none"
+                    oninput="atualizarCharCount('contexto', 'charCountContexto', 12000)"></textarea>
+          <div id="charCountContexto" class="char-counter text-placar-muted">0 / 12.000</div>
         </div>
 
         <!-- Tom -->
@@ -336,18 +439,23 @@
 
         <!-- Loading -->
         <div id="loadingBox" class="hidden">
-          <div class="flex flex-col items-center justify-center py-6 gap-3">
+          <div class="progress-bar mb-3"></div>
+          <div class="flex flex-col items-center justify-center py-4 gap-3">
             <div class="relative">
               <div class="ball-bounce text-3xl">&#9917;</div>
               <div class="ball-shadow w-8 h-1.5 bg-white/20 rounded-full mx-auto mt-1"></div>
             </div>
             <p id="loadingText" class="text-sm text-placar-muted">Gerando conteudo no jeito RDT...</p>
+            <p id="loadingTimer" class="text-[10px] text-placar-muted/60">0s</p>
           </div>
         </div>
 
         <!-- Streaming -->
         <div id="streamBox" class="hidden bg-placar-black border border-white/10 rounded-lg p-4 max-h-64 overflow-y-auto scroll-thin">
-          <p class="text-xs text-placar-red font-semibold uppercase tracking-wider mb-2">Escrevendo ao vivo...</p>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs text-placar-red font-semibold uppercase tracking-wider">Escrevendo ao vivo...</p>
+            <span id="streamCharCount" class="text-[10px] text-placar-muted">0 chars</span>
+          </div>
           <div id="streamContent" class="text-sm text-gray-300 whitespace-pre-wrap cursor-blink"></div>
         </div>
       </div>
@@ -372,7 +480,9 @@
       </div>
       <div class="p-4 sm:p-5 space-y-3">
         <textarea id="respostaIA" rows="6" placeholder="Se gerou fora do site, cole a resposta completa aqui..."
-                  class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition resize-none"></textarea>
+                  class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition resize-none"
+                  oninput="atualizarCharCount('respostaIA', 'charCountResposta', 20000)"></textarea>
+        <div id="charCountResposta" class="char-counter text-placar-muted"></div>
         <div class="flex flex-wrap gap-2">
           <button onclick="processarResposta()" class="btn-secondary font-medium px-4 py-2 rounded text-sm">Processar & Organizar</button>
           <button onclick="dividir300()" class="btn-secondary font-medium px-4 py-2 rounded text-sm">Dividir em 300 chars</button>
@@ -389,6 +499,9 @@
           <span id="statChars" class="stat-pill bg-white/10 text-placar-muted">0 caracteres</span>
           <span id="statReadTime" class="stat-pill bg-white/10 text-placar-muted">~0 min leitura</span>
           <div class="ml-auto flex items-center gap-1">
+            <button onclick="abrirFullscreen()" class="text-xs btn-secondary px-2 py-1 rounded" title="Modo leitura">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+            </button>
             <button onclick="copiarTudoFormatado()" class="text-xs btn-secondary px-3 py-1 rounded flex items-center gap-1" title="Copiar tudo formatado">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
               Copiar tudo
@@ -398,6 +511,16 @@
               Exportar .txt
             </button>
           </div>
+        </div>
+
+        <!-- Regenerate bar -->
+        <div id="regenBar" class="hidden bg-placar-gray/30 px-5 py-2 border-b border-white/10 flex items-center gap-2 overflow-x-auto">
+          <span class="text-[10px] text-placar-muted uppercase tracking-wider whitespace-nowrap">Regerar com tom:</span>
+          <button onclick="regenerarComTom('equilibrado')" class="text-[10px] btn-secondary px-2 py-0.5 rounded-full whitespace-nowrap">Equilibrado</button>
+          <button onclick="regenerarComTom('provocador')" class="text-[10px] btn-secondary px-2 py-0.5 rounded-full whitespace-nowrap">Provocador</button>
+          <button onclick="regenerarComTom('emocional')" class="text-[10px] btn-secondary px-2 py-0.5 rounded-full whitespace-nowrap">Emocional</button>
+          <button onclick="regenerarComTom('tecnico')" class="text-[10px] btn-secondary px-2 py-0.5 rounded-full whitespace-nowrap">Tecnico</button>
+          <button onclick="regenerarComTom('humorado')" class="text-[10px] btn-secondary px-2 py-0.5 rounded-full whitespace-nowrap">Bem-humorado</button>
         </div>
 
         <!-- Tab nav -->
@@ -422,9 +545,12 @@
         <div id="panel-materia" class="tab-panel active p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Materia Completa</h4>
-            <button onclick="copiarTexto('materiaCompleta')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+            <div class="flex items-center gap-2">
+              <span class="edit-indicator text-placar-muted">clique para editar</span>
+              <button onclick="copiarTexto('materiaCompleta')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+            </div>
           </div>
-          <div id="materiaCompleta" class="text-sm leading-relaxed whitespace-pre-wrap text-gray-200"></div>
+          <div id="materiaCompleta" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true"></div>
         </div>
 
         <div id="panel-trechos" class="tab-panel p-4 sm:p-5">
@@ -445,9 +571,12 @@
         <div id="panel-facebook" class="tab-panel p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Resumo Facebook</h4>
-            <button onclick="copiarTexto('resumoFB')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+            <div class="flex items-center gap-2">
+              <span class="edit-indicator text-placar-muted">clique para editar</span>
+              <button onclick="copiarTexto('resumoFB')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+            </div>
           </div>
-          <div id="resumoFB" class="text-sm leading-relaxed whitespace-pre-wrap text-gray-200"></div>
+          <div id="resumoFB" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true"></div>
         </div>
 
         <div id="panel-threads" class="tab-panel p-4 sm:p-5">
@@ -463,7 +592,7 @@
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Prompt de Imagem</h4>
             <button onclick="copiarTexto('imgPromptContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
           </div>
-          <div id="imgPromptContent" class="text-sm leading-relaxed whitespace-pre-wrap text-gray-200"></div>
+          <div id="imgPromptContent" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true"></div>
         </div>
       </div>
     </section>
@@ -473,8 +602,14 @@
         <span class="font-display text-sm font-bold tracking-wider text-white">RDT</span>
       </div>
       <p class="text-xs text-placar-muted">Futebol com alma de arquibancada</p>
+      <p class="text-[10px] text-placar-muted/50 mt-1">v3.0 &middot; Ctrl+Enter para gerar &middot; Esc para fechar modais</p>
     </footer>
   </main>
+
+  <!-- Scroll to top -->
+  <button id="scrollTopBtn" class="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+  </button>
 
   <script>
     // ==================== AUTH ====================
@@ -535,6 +670,17 @@
       arrow.classList.toggle('open');
     }
 
+    // ==================== CHAR COUNTER ====================
+    function atualizarCharCount(inputId, countId, limit) {
+      const el = document.getElementById(inputId);
+      const counter = document.getElementById(countId);
+      if (!el || !counter) return;
+      const len = el.value.length;
+      counter.textContent = `${len.toLocaleString('pt-BR')} / ${limit.toLocaleString('pt-BR')}`;
+      counter.classList.toggle('warn', len > limit * 0.8);
+      counter.classList.toggle('over', len > limit);
+    }
+
     // ==================== DNA / TONE ====================
     const DNA_RDT = `Voce e o redator oficial da RDT Futebol. Seu jeito de escrever e o seguinte:
 
@@ -562,6 +708,7 @@ Regras importantes:
       humorado: '\n\nTOM ESPECIFICO: Seja mais bem-humorado e leve. Use ironias inteligentes, comparacoes engracadas, trocadilhos com futebol. Faca o leitor rir enquanto se informa.'
     };
     let tomSelecionado = 'equilibrado';
+    let ultimoModoGerado = 'full';
     function selecionarTom(tom) {
       tomSelecionado = tom;
       document.querySelectorAll('.tone-option').forEach(el => el.classList.toggle('selected', el.dataset.tone === tom));
@@ -582,6 +729,7 @@ Regras importantes:
       if (!t) return;
       document.getElementById('tema').value = t.tema;
       document.getElementById('contexto').value = t.contexto;
+      atualizarCharCount('contexto', 'charCountContexto', 12000);
       document.getElementById('tema').focus();
       toast('Template aplicado! Preencha os dados.', 'info');
     }
@@ -605,20 +753,51 @@ Regras importantes:
       ]
     };
 
+    // ==================== PER-PROVIDER KEYS ====================
+    function getKeyForProvider(provider) {
+      return safeGet('rdt_key_' + provider, '') || safeGet('rdt_api_key', '');
+    }
+    function setKeyForProvider(provider, key) {
+      safeSet('rdt_key_' + provider, key);
+      safeSet('rdt_api_key', key);
+    }
+    function atualizarKeyDots() {
+      ['groq', 'deepseek', 'openai'].forEach(p => {
+        const dot = document.getElementById('dot' + p.charAt(0).toUpperCase() + p.slice(1));
+        if (dot) {
+          const key = safeGet('rdt_key_' + p, '');
+          dot.classList.toggle('saved', !!key);
+          dot.classList.toggle('missing', !key);
+        }
+      });
+    }
+
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', () => {
-      const savedKey = safeGet('rdt_api_key');
-      const savedProvider = safeGet('rdt_provider', 'groq');
+      const provider = safeGet('rdt_provider', 'groq');
+      document.getElementById('provider').value = provider;
+      atualizarModelos();
+
+      const savedKey = getKeyForProvider(provider);
       if (savedKey) {
         document.getElementById('apiKey').value = savedKey;
         document.getElementById('configStatus').classList.remove('hidden');
       }
-      document.getElementById('provider').value = savedProvider;
-      atualizarModelos();
-      document.getElementById('provider').addEventListener('change', atualizarModelos);
+
+      document.getElementById('provider').addEventListener('change', () => {
+        atualizarModelos();
+        const p = document.getElementById('provider').value;
+        const k = getKeyForProvider(p);
+        document.getElementById('apiKey').value = k;
+        document.getElementById('providerLabel').textContent = p === 'groq' ? 'Groq' : p === 'deepseek' ? 'DeepSeek' : 'OpenAI';
+        atualizarKeyDots();
+      });
+
       atualizarBadgeHistorico();
+      atualizarKeyDots();
       restaurarRascunho();
       iniciarAutoSave();
+      iniciarScrollTop();
     });
 
     function atualizarModelos() {
@@ -637,14 +816,57 @@ Regras importantes:
       const provider = document.getElementById('provider').value;
       const feedback = document.getElementById('keyFeedback');
       const btn = document.getElementById('btnSalvarKey');
-      if (!key) { safeRemove('rdt_api_key'); feedback.textContent = 'Cole a chave antes de salvar.'; feedback.className = 'text-[11px] mt-1.5 text-yellow-400'; feedback.classList.remove('hidden'); return; }
+      if (!key) { safeRemove('rdt_key_' + provider); feedback.textContent = 'Cole a chave antes de salvar.'; feedback.className = 'text-[11px] mt-1.5 text-yellow-400'; feedback.classList.remove('hidden'); atualizarKeyDots(); return; }
       if (!key.startsWith('gsk_') && !key.startsWith('sk-')) { feedback.textContent = 'Chave invalida. Groq: gsk_ | DeepSeek/OpenAI: sk-'; feedback.className = 'text-[11px] mt-1.5 text-yellow-400'; feedback.classList.remove('hidden'); return; }
-      safeSet('rdt_api_key', key); safeSet('rdt_provider', provider);
-      feedback.textContent = 'Chave salva com sucesso!'; feedback.className = 'text-[11px] mt-1.5 text-green-400'; feedback.classList.remove('hidden');
+      setKeyForProvider(provider, key);
+      safeSet('rdt_provider', provider);
+      feedback.textContent = `Chave salva para ${provider}!`; feedback.className = 'text-[11px] mt-1.5 text-green-400'; feedback.classList.remove('hidden');
       document.getElementById('configStatus').classList.remove('hidden');
+      atualizarKeyDots();
       toast('API Key salva!', 'success');
       btn.textContent = 'Salvo'; btn.classList.add('bg-green-600', 'border-green-500', 'text-white');
       setTimeout(() => { btn.textContent = 'Salvar'; btn.classList.remove('bg-green-600', 'border-green-500', 'text-white'); }, 2000);
+    }
+
+    // ==================== CONNECTION TEST ====================
+    async function testarConexao() {
+      const key = document.getElementById('apiKey').value.trim();
+      const provider = document.getElementById('provider').value;
+      const feedback = document.getElementById('keyFeedback');
+      const icon = document.getElementById('testIcon');
+
+      if (!key) { toast('Salve a chave primeiro.', 'warning'); return; }
+
+      icon.classList.add('spin');
+      feedback.textContent = 'Testando conexao...'; feedback.className = 'text-[11px] mt-1.5 text-blue-400'; feedback.classList.remove('hidden');
+
+      try {
+        let apiUrl;
+        if (provider === 'groq') apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+        else if (provider === 'deepseek') apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+        else apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+        const model = document.getElementById('model').value;
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+          body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Diga apenas: OK' }], max_tokens: 5 })
+        });
+
+        if (response.ok) {
+          feedback.textContent = 'Conexao OK! Tudo funcionando.'; feedback.className = 'text-[11px] mt-1.5 text-green-400';
+          toast('Conexao testada com sucesso!', 'success');
+        } else {
+          const err = await response.json().catch(() => ({}));
+          feedback.textContent = `Erro ${response.status}: ${err.error?.message || 'Chave invalida ou sem credito.'}`;
+          feedback.className = 'text-[11px] mt-1.5 text-red-400';
+          toast('Falha na conexao.', 'error');
+        }
+      } catch (err) {
+        feedback.textContent = 'Erro de rede: ' + err.message; feedback.className = 'text-[11px] mt-1.5 text-red-400';
+        toast('Erro de rede.', 'error');
+      }
+      icon.classList.remove('spin');
     }
 
     // ==================== AUTO-SAVE DRAFT ====================
@@ -667,7 +889,7 @@ Regras importantes:
         const draft = JSON.parse(safeGet('rdt_draft', 'null'));
         if (!draft) return;
         if (draft.tema) document.getElementById('tema').value = draft.tema;
-        if (draft.contexto) document.getElementById('contexto').value = draft.contexto;
+        if (draft.contexto) { document.getElementById('contexto').value = draft.contexto; atualizarCharCount('contexto', 'charCountContexto', 12000); }
         if (draft.url) document.getElementById('urlNoticia').value = draft.url;
         if (draft.tom) selecionarTom(draft.tom);
       } catch(e) {}
@@ -675,18 +897,55 @@ Regras importantes:
 
     // ==================== KEYBOARD SHORTCUTS ====================
     document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        gerarComIA('full');
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); gerarComIA('full'); }
+      if (e.key === 'Escape') {
+        if (document.getElementById('fullscreenModal').classList.contains('open')) fecharFullscreen();
+        else if (document.getElementById('drawerPanel').classList.contains('open')) fecharHistorico();
       }
     });
+
+    // ==================== SCROLL TO TOP ====================
+    function iniciarScrollTop() {
+      const btn = document.getElementById('scrollTopBtn');
+      window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 400);
+      }, { passive: true });
+    }
+
+    // ==================== FULLSCREEN MODE ====================
+    function abrirFullscreen() {
+      const materia = document.getElementById('materiaCompleta').innerText || '';
+      if (!materia) { toast('Nenhuma materia para exibir.', 'warning'); return; }
+      document.getElementById('fullscreenContent').textContent = materia;
+      document.getElementById('fullscreenModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function fecharFullscreen() {
+      document.getElementById('fullscreenModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function imprimirConteudo() {
+      fecharFullscreen();
+      setTimeout(() => window.print(), 300);
+    }
 
     // ==================== HELPERS ====================
     function getTema() { return document.getElementById('tema').value.trim() || 'futebol brasileiro em geral'; }
     function getContexto() { return document.getElementById('contexto').value.trim(); }
     function setBotoesDisabled(d) { ['btnFull','btnLegendas','btnTrechos','btnUrl','btnThreads','btnImgPrompt'].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = d; }); }
-    function mostrarLoading(msg) { document.getElementById('loadingBox').classList.remove('hidden'); document.getElementById('loadingText').textContent = msg || 'Gerando conteudo no jeito RDT...'; }
-    function esconderLoading() { document.getElementById('loadingBox').classList.add('hidden'); }
+    let loadingTimerInterval = null;
+    function mostrarLoading(msg) {
+      document.getElementById('loadingBox').classList.remove('hidden');
+      document.getElementById('loadingText').textContent = msg || 'Gerando conteudo no jeito RDT...';
+      const timerEl = document.getElementById('loadingTimer');
+      let seconds = 0;
+      timerEl.textContent = '0s';
+      loadingTimerInterval = setInterval(() => { seconds++; timerEl.textContent = seconds + 's'; }, 1000);
+    }
+    function esconderLoading() {
+      document.getElementById('loadingBox').classList.add('hidden');
+      if (loadingTimerInterval) { clearInterval(loadingTimerInterval); loadingTimerInterval = null; }
+    }
     function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
     // ==================== TABS ====================
@@ -705,12 +964,19 @@ Regras importantes:
       document.getElementById('statReadTime').textContent = `~${readMin} min leitura`;
     }
 
+    // ==================== REGENERATE WITH TONE ====================
+    function regenerarComTom(tom) {
+      selecionarTom(tom);
+      gerarComIA(ultimoModoGerado);
+    }
+
     // ==================== GENERATE ====================
     async function gerarPorUrl() {
       const url = document.getElementById('urlNoticia').value.trim();
       if (!url) { toast('Cole a URL da noticia primeiro.', 'warning'); return; }
       if (!url.startsWith('http://') && !url.startsWith('https://')) { toast('URL precisa comecar com http(s)://', 'warning'); return; }
-      const key = document.getElementById('apiKey').value.trim();
+      const provider = document.getElementById('provider').value;
+      const key = getKeyForProvider(provider);
       if (!key) { toast('Salve sua API Key antes de gerar.', 'warning'); return; }
       setBotoesDisabled(true); mostrarLoading('Lendo a noticia da URL...');
       try {
@@ -719,6 +985,7 @@ Regras importantes:
         let txt = await resp.text();
         if (txt.length > 12000) txt = txt.substring(0, 12000) + '\n\n[... texto cortado ...]';
         document.getElementById('contexto').value = txt;
+        atualizarCharCount('contexto', 'charCountContexto', 12000);
         if (!document.getElementById('tema').value.trim()) document.getElementById('tema').value = 'Analise da noticia (gerada a partir da URL)';
         toast('Noticia lida! Gerando conteudo...', 'info');
         await gerarComIA('full');
@@ -736,17 +1003,19 @@ Regras importantes:
     }
 
     async function gerarComIA(modo = 'full') {
-      const key = document.getElementById('apiKey').value.trim();
+      const provider = document.getElementById('provider').value;
+      const key = getKeyForProvider(provider);
       if (!key) { toast('Salve sua API Key primeiro.', 'warning'); return; }
       const tema = getTema(), contexto = getContexto();
-      const provider = document.getElementById('provider').value;
       const model = document.getElementById('model').value;
       const systemPrompt = DNA_RDT + (TONE_MODIFIERS[tomSelecionado] || '');
       const userPrompt = buildUserPrompt(modo, tema, contexto);
+      ultimoModoGerado = modo;
 
       setBotoesDisabled(true); mostrarLoading('Gerando conteudo no jeito RDT...');
       const streamBox = document.getElementById('streamBox');
       const streamContent = document.getElementById('streamContent');
+      const streamCharCount = document.getElementById('streamCharCount');
       streamBox.classList.remove('hidden'); streamContent.textContent = '';
 
       try {
@@ -774,7 +1043,12 @@ Regras importantes:
             if (!trimmed.startsWith('data: ') || trimmed === 'data: [DONE]') continue;
             try {
               const delta = JSON.parse(trimmed.slice(6)).choices?.[0]?.delta?.content || '';
-              if (delta) { fullContent += delta; streamContent.textContent = fullContent; streamBox.scrollTop = streamBox.scrollHeight; }
+              if (delta) {
+                fullContent += delta;
+                streamContent.textContent = fullContent;
+                streamCharCount.textContent = fullContent.length + ' chars';
+                streamBox.scrollTop = streamBox.scrollHeight;
+              }
             } catch(e) {}
           }
         }
@@ -787,6 +1061,7 @@ Regras importantes:
         toast('Conteudo gerado com sucesso!', 'success');
         salvarNoHistorico(tema, modo, fullContent, provider, model);
         safeRemove('rdt_draft');
+        document.getElementById('regenBar').classList.remove('hidden');
       } catch (err) { streamBox.classList.add('hidden'); esconderLoading(); toast('Erro: ' + err.message, 'error'); }
       finally { setBotoesDisabled(false); }
     }
@@ -834,9 +1109,13 @@ Regras importantes:
       } else { containerLegendas.innerHTML = '<p class="text-placar-muted text-sm">Nenhuma legenda detectada.</p>'; }
 
       document.getElementById('resumoFB').textContent = resumo ? resumo.trim() : 'Nenhum resumo detectado.';
-      document.getElementById('resultados').classList.remove('hidden');
+
+      const resultados = document.getElementById('resultados');
+      resultados.classList.remove('hidden');
+      resultados.classList.add('animate-in');
+      document.getElementById('regenBar').classList.remove('hidden');
       trocarTab('materia');
-      document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+      resultados.scrollIntoView({ behavior: 'smooth' });
     }
 
     function processarThreads(texto) {
@@ -853,18 +1132,24 @@ Regras importantes:
         container.appendChild(div);
       });
       document.getElementById('tabThreads').classList.remove('hidden');
-      document.getElementById('resultados').classList.remove('hidden');
+      const resultados = document.getElementById('resultados');
+      resultados.classList.remove('hidden');
+      resultados.classList.add('animate-in');
+      document.getElementById('regenBar').classList.remove('hidden');
       trocarTab('threads');
-      document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+      resultados.scrollIntoView({ behavior: 'smooth' });
     }
 
     function processarImgPrompt(texto) {
       const raw = extrairSecao(texto, '=== PROMPTS DE IMAGEM ===', null) || texto;
       document.getElementById('imgPromptContent').textContent = raw.trim();
       document.getElementById('tabImgPrompt').classList.remove('hidden');
-      document.getElementById('resultados').classList.remove('hidden');
+      const resultados = document.getElementById('resultados');
+      resultados.classList.remove('hidden');
+      resultados.classList.add('animate-in');
+      document.getElementById('regenBar').classList.remove('hidden');
       trocarTab('imgprompt');
-      document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+      resultados.scrollIntoView({ behavior: 'smooth' });
     }
 
     // ==================== UTILITIES ====================
@@ -925,9 +1210,11 @@ Regras importantes:
       ['tema','contexto','urlNoticia','promptOutput','respostaIA'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('promptSection').classList.add('hidden');
       document.getElementById('resultados').classList.add('hidden');
+      document.getElementById('regenBar').classList.add('hidden');
       document.getElementById('streamBox').classList.add('hidden');
       esconderLoading();
       safeRemove('rdt_draft');
+      atualizarCharCount('contexto', 'charCountContexto', 12000);
       toast('Tudo limpo!', 'info');
     }
 
@@ -937,12 +1224,12 @@ Regras importantes:
     function copiarPrompt() { navigator.clipboard.writeText(document.getElementById('promptOutput').value).then(() => toast('Prompt copiado!', 'success')); }
 
     function copiarTudoFormatado() {
-      const materia = document.getElementById('materiaCompleta').textContent || '';
-      const resumo = document.getElementById('resumoFB').textContent || '';
+      const materia = document.getElementById('materiaCompleta').innerText || '';
+      const resumo = document.getElementById('resumoFB').innerText || '';
       const legendas = document.getElementById('legendasIG').innerText || '';
       const trechos = document.getElementById('trechos300').innerText || '';
       const threads = document.getElementById('threadsContent').innerText || '';
-      const imgPrompt = document.getElementById('imgPromptContent').textContent || '';
+      const imgPrompt = document.getElementById('imgPromptContent').innerText || '';
 
       let output = '=== MATERIA COMPLETA ===\n\n' + materia;
       if (trechos) output += '\n\n=== TRECHOS 300 ===\n\n' + trechos;
@@ -955,11 +1242,11 @@ Regras importantes:
     }
 
     function exportarTXT() {
-      const materia = document.getElementById('materiaCompleta').textContent || '';
-      const resumo = document.getElementById('resumoFB').textContent || '';
+      const materia = document.getElementById('materiaCompleta').innerText || '';
+      const resumo = document.getElementById('resumoFB').innerText || '';
       const legendas = document.getElementById('legendasIG').innerText || '';
       const threads = document.getElementById('threadsContent').innerText || '';
-      const imgPrompt = document.getElementById('imgPromptContent').textContent || '';
+      const imgPrompt = document.getElementById('imgPromptContent').innerText || '';
       const tema = document.getElementById('tema').value || 'materia';
 
       let output = 'RDT FUTEBOL - ' + tema.toUpperCase() + '\n';
@@ -982,8 +1269,8 @@ Regras importantes:
     }
 
     function compartilhar(plataforma) {
-      const materia = document.getElementById('materiaCompleta').textContent || '';
-      const resumo = document.getElementById('resumoFB').textContent || '';
+      const materia = document.getElementById('materiaCompleta').innerText || '';
+      const resumo = document.getElementById('resumoFB').innerText || '';
       const texto = resumo || materia.substring(0, 500);
       if (!texto) { toast('Gere uma materia primeiro.', 'warning'); return; }
       if (plataforma === 'whatsapp') window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
@@ -996,9 +1283,15 @@ Regras importantes:
 
     function salvarNoHistorico(tema, modo, conteudo, provider, model) {
       const hist = getHistorico();
-      hist.unshift({ id: Date.now(), data: new Date().toISOString(), tema, modo, provider, model, conteudo: conteudo.substring(0, 8000), preview: conteudo.substring(0, 150) });
+      hist.unshift({ id: Date.now(), data: new Date().toISOString(), tema, modo, provider, model, conteudo: conteudo.substring(0, 8000), preview: conteudo.substring(0, 150), fav: false });
       if (hist.length > 50) hist.length = 50;
       salvarHistoricoData(hist);
+    }
+
+    function toggleFavorito(id) {
+      const hist = getHistorico();
+      const item = hist.find(h => h.id === id);
+      if (item) { item.fav = !item.fav; salvarHistoricoData(hist); renderizarHistorico(); }
     }
 
     function atualizarBadgeHistorico() {
@@ -1013,7 +1306,12 @@ Regras importantes:
 
     function renderizarHistorico() {
       const busca = (document.getElementById('histSearch').value || '').toLowerCase();
-      const hist = getHistorico().filter(h => !busca || h.tema.toLowerCase().includes(busca) || h.preview.toLowerCase().includes(busca));
+      const filtro = document.getElementById('histFilter').value;
+      let hist = getHistorico();
+      if (busca) hist = hist.filter(h => h.tema.toLowerCase().includes(busca) || h.preview.toLowerCase().includes(busca));
+      if (filtro === 'fav') hist = hist.filter(h => h.fav);
+      else if (filtro !== 'all') hist = hist.filter(h => h.modo === filtro || filtro === 'all');
+
       const list = document.getElementById('histList');
       const empty = document.getElementById('histEmpty');
       if (!hist.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
@@ -1023,7 +1321,16 @@ Regras importantes:
         const d = new Date(h.data);
         const ds = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         return `<div class="bg-placar-black border border-white/10 rounded-lg p-4 hover:border-placar-red/50 transition cursor-pointer" onclick="carregarDoHistorico(${h.id})">
-          <div class="flex items-center justify-between mb-2"><span class="text-xs text-placar-red font-semibold">${modos[h.modo]||h.modo}</span><div class="flex items-center gap-2"><span class="text-[10px] text-placar-muted">${ds}</span><button onclick="event.stopPropagation();removerDoHistorico(${h.id})" class="text-placar-muted hover:text-red-400 text-xs">&times;</button></div></div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-placar-red font-semibold">${modos[h.modo]||h.modo}</span>
+              <button onclick="event.stopPropagation();toggleFavorito(${h.id})" class="fav-star ${h.fav?'active text-yellow-400':'text-placar-muted'}" title="Favoritar">&#9733;</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-placar-muted">${ds}</span>
+              <button onclick="event.stopPropagation();removerDoHistorico(${h.id})" class="text-placar-muted hover:text-red-400 text-xs">&times;</button>
+            </div>
+          </div>
           <p class="text-sm font-medium mb-1 truncate">${escapeHtml(h.tema)}</p>
           <p class="text-xs text-placar-muted line-clamp-2">${escapeHtml(h.preview)}...</p>
           <p class="text-[10px] text-placar-muted mt-1">${h.provider} / ${h.model}</p></div>`;
