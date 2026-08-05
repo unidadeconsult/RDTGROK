@@ -1088,8 +1088,8 @@ Regras:
     };
 
     // ==================== PER-PROVIDER KEYS ====================
-    function getKeyForProvider(provider) { return safeGet('rdt_key_' + provider, '') || safeGet('rdt_api_key', ''); }
-    function setKeyForProvider(provider, key) { safeSet('rdt_key_' + provider, key); safeSet('rdt_api_key', key); }
+    function getKeyForProvider(provider) { return safeGet('rdt_key_' + provider, ''); }
+    function setKeyForProvider(provider, key) { safeSet('rdt_key_' + provider, key); }
     function atualizarKeyDots() {
       ['groq', 'deepseek', 'openai'].forEach(p => {
         const dot = document.getElementById('dot' + p.charAt(0).toUpperCase() + p.slice(1));
@@ -1346,13 +1346,21 @@ Regras:
 
       try {
         let apiUrl = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : provider === 'deepseek' ? 'https://api.deepseek.com/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
+        const providerNames = { groq: 'Groq', deepseek: 'DeepSeek', openai: 'OpenAI' };
         const fetchOpts = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
           body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.75, max_tokens: 4000, stream: true })
         };
         const response = await fetchWithRetry(apiUrl, fetchOpts);
-        if (!response.ok) { const err = await response.json().catch(()=>({})); throw new Error(err.error?.message || `Erro ${response.status}`); }
+        if (!response.ok) {
+          const err = await response.json().catch(()=>({}));
+          const errMsg = err.error?.message || `Erro ${response.status}`;
+          if (response.status === 401 || response.status === 403) {
+            throw new Error(`Chave invalida para ${providerNames[provider]}. Verifique a API Key nas configuracoes.\n\nDica: confira se a API Key esta correta e se o modelo esta disponivel.`);
+          }
+          throw new Error(errMsg);
+        }
 
         let fullContent = '';
         const reader = response.body.getReader();
