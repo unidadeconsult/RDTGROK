@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -33,10 +33,38 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { background: #0A0A0A; }
+    /* ===== BASE DARK ===== */
+    :root { --bg: #0A0A0A; --card: #111111; --card-alt: #1C1C1C; --text: #ffffff; --text-secondary: #e5e5e5; --text-muted: #A0A0A0; --border: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.15); --input-bg: #0A0A0A; --overlay: rgba(0,0,0,0.6); --drawer-bg: #111; --chunk-hover: #C8102E; }
+    body { background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
     .magazine-header { background: linear-gradient(180deg, #C8102E 0%, #9B0C24 100%); }
+
+    /* ===== LIGHT THEME ===== */
+    [data-theme="light"] { --bg: #F5F0E8; --card: #ffffff; --card-alt: #f0ebe3; --text: #1a1a1a; --text-secondary: #333333; --text-muted: #666666; --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.15); --input-bg: #ffffff; --overlay: rgba(0,0,0,0.3); --drawer-bg: #fff; --chunk-hover: #C8102E; }
+    [data-theme="light"] .bg-placar-black { background: var(--input-bg) !important; }
+    [data-theme="light"] .bg-placar-card { background: var(--card) !important; }
+    [data-theme="light"] .bg-placar-gray { background: var(--card-alt) !important; }
+    [data-theme="light"] .text-white { color: var(--text) !important; }
+    [data-theme="light"] .text-gray-200, [data-theme="light"] .text-gray-300 { color: var(--text-secondary) !important; }
+    [data-theme="light"] .text-placar-muted { color: var(--text-muted) !important; }
+    [data-theme="light"] .border-white\/10, [data-theme="light"] .border-white\/15, [data-theme="light"] .border-white\/20 { border-color: var(--border) !important; }
+    [data-theme="light"] select, [data-theme="light"] input:not([type="password"]):not(#loginPassword), [data-theme="light"] textarea { background: var(--input-bg) !important; color: var(--text) !important; border-color: var(--border-strong) !important; }
+    [data-theme="light"] input[type="password"]:not(#loginPassword) { background: var(--input-bg) !important; color: var(--text) !important; border-color: var(--border-strong) !important; }
+    [data-theme="light"] .btn-secondary { background: rgba(0,0,0,0.05) !important; border-color: var(--border-strong) !important; color: var(--text) !important; }
+    [data-theme="light"] .btn-secondary:hover { background: rgba(0,0,0,0.1) !important; }
+    [data-theme="light"] .chunk-card { background: var(--input-bg) !important; border-color: var(--border) !important; }
+    [data-theme="light"] .drawer-panel { background: var(--drawer-bg) !important; }
+    [data-theme="light"] .drawer-overlay.open { background: var(--overlay); }
+    [data-theme="light"] .tab-btn:not(.active) { color: var(--text-muted) !important; }
+    [data-theme="light"] .tab-btn:hover:not(.active) { color: var(--text) !important; }
+    [data-theme="light"] .tone-option:not(.selected), [data-theme="light"] .template-chip { color: var(--text-muted) !important; border-color: var(--border-strong) !important; }
+    [data-theme="light"] .tone-option:not(.selected):hover, [data-theme="light"] .template-chip:hover { color: white !important; }
+    [data-theme="light"] #loginGate { background: var(--bg) !important; }
+    [data-theme="light"] .toast { color: white !important; }
+    [data-theme="light"] textarea::-webkit-scrollbar-track, [data-theme="light"] .scroll-thin::-webkit-scrollbar-track { background: var(--card-alt); }
+
+    /* ===== COMPONENTS ===== */
     .chunk-card { transition: all 0.2s ease; }
-    .chunk-card:hover { transform: translateY(-2px); border-color: #C8102E; }
+    .chunk-card:hover { transform: translateY(-2px); border-color: var(--chunk-hover); }
     textarea::-webkit-scrollbar, .scroll-thin::-webkit-scrollbar { width: 6px; }
     textarea::-webkit-scrollbar-track, .scroll-thin::-webkit-scrollbar-track { background: #1C1C1C; }
     textarea::-webkit-scrollbar-thumb, .scroll-thin::-webkit-scrollbar-thumb { background: #C8102E; border-radius: 3px; }
@@ -54,23 +82,17 @@
     .toast.show { transform: translateX(0); }
     .toast.hide { transform: translateX(120%); }
 
-    /* Loading football */
-    @keyframes bounce-ball {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-18px) rotate(180deg); }
-    }
-    @keyframes shadow-pulse {
-      0%, 100% { transform: scaleX(1); opacity: 0.3; }
-      50% { transform: scaleX(0.6); opacity: 0.1; }
-    }
+    /* Loading */
+    @keyframes bounce-ball { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-18px) rotate(180deg); } }
+    @keyframes shadow-pulse { 0%, 100% { transform: scaleX(1); opacity: 0.3; } 50% { transform: scaleX(0.6); opacity: 0.1; } }
     .ball-bounce { animation: bounce-ball 0.6s ease-in-out infinite; }
     .ball-shadow { animation: shadow-pulse 0.6s ease-in-out infinite; }
 
-    /* Streaming cursor */
+    /* Streaming */
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
     .cursor-blink::after { content:'|'; animation: blink 0.7s step-end infinite; color: #C8102E; }
 
-    /* Tab active */
+    /* Tabs */
     .tab-btn { border-bottom: 2px solid transparent; transition: all 0.2s; }
     .tab-btn.active { border-bottom-color: #C8102E; color: #C8102E; }
     .tab-btn:not(.active) { color: #A0A0A0; }
@@ -78,25 +100,40 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* History drawer */
+    /* Drawer */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
     .drawer-overlay.open { opacity: 1; pointer-events: auto; }
     .drawer-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 90vw; background: #111; z-index: 201; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); overflow-y: auto; }
     .drawer-panel.open { transform: translateX(0); }
 
-    /* Template chip */
+    /* Chips */
     .template-chip { transition: all 0.15s; cursor: pointer; }
     .template-chip:hover { background: #C8102E; color: white; border-color: #C8102E; }
-
-    /* Tone selector */
     .tone-option { transition: all 0.15s; cursor: pointer; }
     .tone-option.selected { background: #C8102E; color: white; border-color: #C8102E; }
     .tone-option:not(.selected):hover { border-color: #C8102E; color: white; }
+
+    /* Collapsible */
+    .collapse-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .collapse-content.open { max-height: 500px; }
+    .collapse-arrow { transition: transform 0.3s; }
+    .collapse-arrow.open { transform: rotate(180deg); }
+
+    /* Stats bar */
+    .stat-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 9999px; font-size: 11px; }
+
+    /* Auto-save indicator */
+    @keyframes fade-in-out { 0%{opacity:0} 20%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    .autosave-flash { animation: fade-in-out 1.5s ease; }
+
+    /* Kbd hint */
+    kbd { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 3px; padding: 1px 5px; font-size: 10px; font-family: inherit; }
+    [data-theme="light"] kbd { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.15); }
   </style>
 </head>
-<body class="text-white font-sans min-h-screen">
+<body class="font-sans min-h-screen">
 
-  <!-- Toast container -->
+  <!-- Toast -->
   <div id="toastContainer" class="fixed top-20 right-4 z-[300] flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- Login -->
@@ -120,7 +157,10 @@
   <div id="drawerPanel" class="drawer-panel">
     <div class="sticky top-0 bg-placar-gray border-b border-white/10 px-5 py-4 flex items-center justify-between z-10">
       <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Historico de Materias</h3>
-      <button onclick="fecharHistorico()" class="text-placar-muted hover:text-white text-lg">&times;</button>
+      <div class="flex items-center gap-2">
+        <button onclick="limparHistorico()" class="text-xs text-placar-muted hover:text-red-400 transition" title="Limpar tudo">Limpar tudo</button>
+        <button onclick="fecharHistorico()" class="text-placar-muted hover:text-white text-lg leading-none">&times;</button>
+      </div>
     </div>
     <div class="p-4">
       <input id="histSearch" type="text" placeholder="Buscar no historico..."
@@ -134,7 +174,7 @@
   <!-- Header -->
   <header class="magazine-header sticky top-0 z-50 shadow-lg">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 sm:gap-4">
         <div class="bg-black px-3 py-1.5">
           <span class="font-display text-2xl font-bold tracking-tighter text-white leading-none">RDT</span>
         </div>
@@ -143,13 +183,19 @@
           <p class="text-[10px] text-white/70 tracking-wider">ALMA DE ARQUIBANCADA</p>
         </div>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <!-- Theme toggle -->
+        <button onclick="toggleTheme()" id="themeToggle" class="bg-black/30 hover:bg-black/50 p-2 rounded transition" title="Alternar tema">
+          <svg id="iconSun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="iconMoon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+        <!-- History -->
         <button onclick="abrirHistorico()" class="flex items-center gap-1.5 bg-black/30 hover:bg-black/50 px-3 py-1.5 rounded text-xs font-medium transition" title="Historico">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <span class="hidden sm:inline">Historico</span>
           <span id="histBadge" class="bg-white text-black text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
         </button>
-        <div class="text-right hidden sm:block">
+        <div class="text-right hidden md:block">
           <p class="text-[10px] uppercase tracking-widest text-white/80">Edicao Digital</p>
           <p class="text-xs font-semibold text-white">Escrita com IA</p>
         </div>
@@ -164,11 +210,11 @@
     </div>
   </div>
 
-  <main class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+  <main class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-5 sm:space-y-6">
 
     <!-- Intro -->
-    <section class="border-l-4 border-placar-red bg-placar-card p-5">
-      <h2 class="font-display text-2xl uppercase tracking-tight mb-2">Escreva futebol do jeito RDT</h2>
+    <section class="border-l-4 border-placar-red bg-placar-card p-4 sm:p-5">
+      <h2 class="font-display text-xl sm:text-2xl uppercase tracking-tight mb-2">Escreva futebol do jeito RDT</h2>
       <p class="text-placar-muted text-sm leading-relaxed max-w-3xl">
         Humano, direto, envolvente e com alma de arquibancada. Informacao + opiniao + emocao,
         sem ofender e sem sensacionalismo. Transformamos qualquer assunto em uma resenha
@@ -176,64 +222,73 @@
       </p>
     </section>
 
-    <!-- Config IA -->
+    <!-- Config IA (collapsible) -->
     <section class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
-      <div class="bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between">
-        <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Configuracao da IA</h3>
-        <span class="text-[10px] text-placar-muted">A chave fica so no seu navegador</span>
-      </div>
-      <div class="p-5 space-y-4">
-        <div class="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">Provedor</label>
-            <select id="provider" class="w-full bg-placar-black border border-white/15 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-placar-red">
-              <option value="groq">Groq (rapido + gratuito)</option>
-              <option value="deepseek">DeepSeek (otimo em portugues)</option>
-              <option value="openai">OpenAI</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">Modelo</label>
-            <select id="model" class="w-full bg-placar-black border border-white/15 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-placar-red"></select>
-          </div>
+      <button onclick="toggleConfig()" class="w-full bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between cursor-pointer hover:bg-white/5 transition">
+        <div class="flex items-center gap-2">
+          <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Configuracao da IA</h3>
+          <span id="configStatus" class="text-[10px] text-green-400 hidden">Configurado</span>
         </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">API Key</label>
-          <div class="flex gap-2">
-            <input id="apiKey" type="password" placeholder="Cole sua chave (gsk_... ou sk-...)"
-                   class="flex-1 bg-placar-black border border-white/15 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-placar-red font-mono" />
-            <button id="btnSalvarKey" onclick="salvarKey()" class="btn-secondary px-4 py-2.5 rounded text-xs font-semibold min-w-[80px]">Salvar</button>
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] text-placar-muted hidden sm:inline">A chave fica so no seu navegador</span>
+          <svg class="collapse-arrow open w-4 h-4 text-placar-muted" id="configArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+      </button>
+      <div class="collapse-content open" id="configContent">
+        <div class="p-5 space-y-4">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">Provedor</label>
+              <select id="provider" class="w-full bg-placar-black border border-white/15 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-placar-red">
+                <option value="groq">Groq (rapido + gratuito)</option>
+                <option value="deepseek">DeepSeek (otimo em portugues)</option>
+                <option value="openai">OpenAI</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">Modelo</label>
+              <select id="model" class="w-full bg-placar-black border border-white/15 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-placar-red"></select>
+            </div>
           </div>
-          <p id="keyFeedback" class="text-[11px] mt-1.5 hidden"></p>
-          <p class="text-[11px] text-placar-muted mt-1.5">Groq: console.groq.com | DeepSeek: platform.deepseek.com | OpenAI: platform.openai.com</p>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">API Key</label>
+            <div class="flex gap-2">
+              <input id="apiKey" type="password" placeholder="Cole sua chave (gsk_... ou sk-...)"
+                     class="flex-1 bg-placar-black border border-white/15 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-placar-red font-mono" />
+              <button id="btnSalvarKey" onclick="salvarKey()" class="btn-secondary px-4 py-2.5 rounded text-xs font-semibold min-w-[80px]">Salvar</button>
+            </div>
+            <p id="keyFeedback" class="text-[11px] mt-1.5 hidden"></p>
+            <p class="text-[11px] text-placar-muted mt-1.5">Groq: console.groq.com | DeepSeek: platform.deepseek.com | OpenAI: platform.openai.com</p>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Pauta -->
     <section class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
-      <div class="bg-placar-gray px-5 py-3 border-b border-white/10">
+      <div class="bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between">
         <h3 class="font-display text-sm uppercase tracking-wider">Pauta</h3>
+        <span id="autosaveIndicator" class="text-[10px] text-green-400/70 hidden">Rascunho salvo</span>
       </div>
-      <div class="p-5 space-y-4">
-        <!-- Templates rapidos -->
+      <div class="p-4 sm:p-5 space-y-4">
+        <!-- Templates -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-2">Templates rapidos</label>
-          <div class="flex flex-wrap gap-2" id="templateChips">
+          <div class="flex flex-wrap gap-1.5 sm:gap-2">
             <button onclick="aplicarTemplate('prejogo')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Pre-jogo</button>
             <button onclick="aplicarTemplate('posjogo')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Pos-jogo</button>
             <button onclick="aplicarTemplate('transferencia')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Transferencias</button>
             <button onclick="aplicarTemplate('tatica')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Analise Tatica</button>
             <button onclick="aplicarTemplate('bastidores')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Bastidores</button>
-            <button onclick="aplicarTemplate('polemica')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Polemica da Rodada</button>
-            <button onclick="aplicarTemplate('cronica')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Cronica de Jogo</button>
+            <button onclick="aplicarTemplate('polemica')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Polemica</button>
+            <button onclick="aplicarTemplate('cronica')" class="template-chip text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5">Cronica</button>
           </div>
         </div>
 
         <!-- URL -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">URL da noticia (opcional)</label>
-          <div class="flex gap-2">
+          <div class="flex flex-col sm:flex-row gap-2">
             <input id="urlNoticia" type="url" placeholder="https://ge.globo.com/... ou qualquer link"
                    class="flex-1 bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition" />
             <button id="btnUrl" onclick="gerarPorUrl()" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm whitespace-nowrap">Ler URL e Gerar</button>
@@ -257,7 +312,7 @@
         <!-- Tom -->
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-2">Tom da materia</label>
-          <div class="flex flex-wrap gap-2" id="toneSelector">
+          <div class="flex flex-wrap gap-1.5 sm:gap-2" id="toneSelector">
             <button onclick="selecionarTom('equilibrado')" class="tone-option text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5 selected" data-tone="equilibrado">Equilibrado</button>
             <button onclick="selecionarTom('provocador')" class="tone-option text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5" data-tone="provocador">Provocador</button>
             <button onclick="selecionarTom('emocional')" class="tone-option text-xs border border-white/20 text-placar-muted rounded-full px-3 py-1.5" data-tone="emocional">Emocional</button>
@@ -266,9 +321,11 @@
           </div>
         </div>
 
-        <!-- Botoes de acao -->
+        <!-- Botoes -->
         <div class="flex flex-wrap gap-2 pt-1">
-          <button id="btnFull" onclick="gerarComIA('full')" class="btn-primary text-white font-bold px-5 py-2.5 rounded text-sm flex items-center gap-2">Gerar Tudo</button>
+          <button id="btnFull" onclick="gerarComIA('full')" class="btn-primary text-white font-bold px-5 py-2.5 rounded text-sm flex items-center gap-2">
+            Gerar Tudo <kbd class="hidden sm:inline text-white/60">Ctrl+Enter</kbd>
+          </button>
           <button id="btnLegendas" onclick="gerarComIA('legendas')" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm">Legendas IG</button>
           <button id="btnTrechos" onclick="gerarComIA('trechos')" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm">Trechos 300</button>
           <button id="btnThreads" onclick="gerarComIA('threads')" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm">Threads X</button>
@@ -288,7 +345,7 @@
           </div>
         </div>
 
-        <!-- Streaming preview -->
+        <!-- Streaming -->
         <div id="streamBox" class="hidden bg-placar-black border border-white/10 rounded-lg p-4 max-h-64 overflow-y-auto scroll-thin">
           <p class="text-xs text-placar-red font-semibold uppercase tracking-wider mb-2">Escrevendo ao vivo...</p>
           <div id="streamContent" class="text-sm text-gray-300 whitespace-pre-wrap cursor-blink"></div>
@@ -296,7 +353,7 @@
       </div>
     </section>
 
-    <!-- Prompt section -->
+    <!-- Prompt -->
     <section id="promptSection" class="hidden bg-placar-card border border-white/10 rounded-lg overflow-hidden">
       <div class="bg-placar-gray px-5 py-3 border-b border-white/10 flex items-center justify-between">
         <h3 class="font-display text-sm uppercase tracking-wider">Prompt pronto</h3>
@@ -313,28 +370,44 @@
       <div class="bg-placar-gray px-5 py-3 border-b border-white/10">
         <h3 class="font-display text-sm uppercase tracking-wider">Resposta da IA (colar manualmente se precisar)</h3>
       </div>
-      <div class="p-5 space-y-3">
+      <div class="p-4 sm:p-5 space-y-3">
         <textarea id="respostaIA" rows="6" placeholder="Se gerou fora do site, cole a resposta completa aqui..."
                   class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition resize-none"></textarea>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <button onclick="processarResposta()" class="btn-secondary font-medium px-4 py-2 rounded text-sm">Processar & Organizar</button>
           <button onclick="dividir300()" class="btn-secondary font-medium px-4 py-2 rounded text-sm">Dividir em 300 chars</button>
         </div>
       </div>
     </section>
 
-    <!-- Resultados com Tabs -->
+    <!-- Resultados -->
     <section id="resultados" class="hidden">
       <div class="bg-placar-card border border-white/10 rounded-lg overflow-hidden">
-        <!-- Tab navigation -->
-        <div class="bg-placar-gray px-5 py-0 border-b border-white/10 flex items-center gap-0 overflow-x-auto scroll-thin">
-          <button onclick="trocarTab('materia')" class="tab-btn active font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap" data-tab="materia">Materia</button>
-          <button onclick="trocarTab('trechos')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap" data-tab="trechos">Trechos 300</button>
-          <button onclick="trocarTab('instagram')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap" data-tab="instagram">Instagram</button>
-          <button onclick="trocarTab('facebook')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap" data-tab="facebook">Facebook</button>
-          <button onclick="trocarTab('threads')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap hidden" data-tab="threads" id="tabThreads">Threads X</button>
-          <button onclick="trocarTab('imgprompt')" class="tab-btn font-display text-xs uppercase tracking-wider px-4 py-3 whitespace-nowrap hidden" data-tab="imgprompt" id="tabImgPrompt">Prompt Imagem</button>
-          <!-- Share -->
+        <!-- Stats bar -->
+        <div id="statsBar" class="bg-placar-gray/50 px-5 py-2 border-b border-white/10 flex flex-wrap items-center gap-2">
+          <span id="statWords" class="stat-pill bg-placar-red/20 text-placar-red">0 palavras</span>
+          <span id="statChars" class="stat-pill bg-white/10 text-placar-muted">0 caracteres</span>
+          <span id="statReadTime" class="stat-pill bg-white/10 text-placar-muted">~0 min leitura</span>
+          <div class="ml-auto flex items-center gap-1">
+            <button onclick="copiarTudoFormatado()" class="text-xs btn-secondary px-3 py-1 rounded flex items-center gap-1" title="Copiar tudo formatado">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              Copiar tudo
+            </button>
+            <button onclick="exportarTXT()" class="text-xs btn-secondary px-3 py-1 rounded flex items-center gap-1" title="Baixar como .txt">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Exportar .txt
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab nav -->
+        <div class="bg-placar-gray px-3 sm:px-5 py-0 border-b border-white/10 flex items-center gap-0 overflow-x-auto scroll-thin">
+          <button onclick="trocarTab('materia')" class="tab-btn active font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap" data-tab="materia">Materia</button>
+          <button onclick="trocarTab('trechos')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap" data-tab="trechos">Trechos</button>
+          <button onclick="trocarTab('instagram')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap" data-tab="instagram">Instagram</button>
+          <button onclick="trocarTab('facebook')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap" data-tab="facebook">Facebook</button>
+          <button onclick="trocarTab('threads')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="threads" id="tabThreads">Threads X</button>
+          <button onclick="trocarTab('imgprompt')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="imgprompt" id="tabImgPrompt">Imagem</button>
           <div class="ml-auto flex items-center gap-1 py-2">
             <button onclick="compartilhar('whatsapp')" class="text-xs text-placar-muted hover:text-green-400 px-2 py-1 rounded transition" title="WhatsApp">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -345,8 +418,8 @@
           </div>
         </div>
 
-        <!-- Tab: Materia -->
-        <div id="panel-materia" class="tab-panel active p-5">
+        <!-- Panels -->
+        <div id="panel-materia" class="tab-panel active p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Materia Completa</h4>
             <button onclick="copiarTexto('materiaCompleta')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
@@ -354,25 +427,22 @@
           <div id="materiaCompleta" class="text-sm leading-relaxed whitespace-pre-wrap text-gray-200"></div>
         </div>
 
-        <!-- Tab: Trechos -->
-        <div id="panel-trechos" class="tab-panel p-5">
+        <div id="panel-trechos" class="tab-panel p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
-            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Trechos de ~300 caracteres</h4>
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Trechos ~300 caracteres</h4>
             <span class="text-xs text-placar-muted" id="qtdTrechos"></span>
           </div>
           <div id="trechos300" class="space-y-3"></div>
         </div>
 
-        <!-- Tab: Instagram -->
-        <div id="panel-instagram" class="tab-panel p-5">
+        <div id="panel-instagram" class="tab-panel p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Legendas Instagram</h4>
           </div>
           <div id="legendasIG" class="space-y-4"></div>
         </div>
 
-        <!-- Tab: Facebook -->
-        <div id="panel-facebook" class="tab-panel p-5">
+        <div id="panel-facebook" class="tab-panel p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Resumo Facebook</h4>
             <button onclick="copiarTexto('resumoFB')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
@@ -380,17 +450,15 @@
           <div id="resumoFB" class="text-sm leading-relaxed whitespace-pre-wrap text-gray-200"></div>
         </div>
 
-        <!-- Tab: Threads X -->
-        <div id="panel-threads" class="tab-panel p-5">
+        <div id="panel-threads" class="tab-panel p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
-            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Threads para X / Twitter</h4>
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Threads X / Twitter</h4>
             <button onclick="copiarTexto('threadsContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar tudo</button>
           </div>
           <div id="threadsContent" class="space-y-3"></div>
         </div>
 
-        <!-- Tab: Image Prompt -->
-        <div id="panel-imgprompt" class="tab-panel p-5">
+        <div id="panel-imgprompt" class="tab-panel p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Prompt de Imagem</h4>
             <button onclick="copiarTexto('imgPromptContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
@@ -411,7 +479,6 @@
   <script>
     // ==================== AUTH ====================
     const SENHA_CORRETA = 'rdt2026';
-
     function verificarSenha() {
       const input = document.getElementById('loginPassword');
       const erro = document.getElementById('loginError');
@@ -419,51 +486,56 @@
         safeSet('rdt_auth', 'ok');
         document.getElementById('loginGate').classList.add('hidden');
         erro.classList.add('hidden');
-      } else {
-        erro.classList.remove('hidden');
-        input.value = '';
-        input.focus();
-      }
+      } else { erro.classList.remove('hidden'); input.value = ''; input.focus(); }
     }
+    (function() { if (safeGet('rdt_auth') === 'ok') document.getElementById('loginGate').classList.add('hidden'); })();
 
-    (function checarAuth() {
-      if (safeGet('rdt_auth') === 'ok') document.getElementById('loginGate').classList.add('hidden');
+    // ==================== THEME ====================
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      safeSet('rdt_theme', html.dataset.theme);
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      document.getElementById('iconMoon').classList.toggle('hidden', !isDark);
+      document.getElementById('iconSun').classList.toggle('hidden', isDark);
+    }
+    (function() {
+      const saved = safeGet('rdt_theme', 'dark');
+      document.documentElement.dataset.theme = saved;
+      updateThemeIcons();
     })();
 
     // ==================== TOAST ====================
     function toast(msg, tipo = 'success') {
       const container = document.getElementById('toastContainer');
-      const colors = {
-        success: 'bg-green-600 border-green-500',
-        error: 'bg-red-700 border-red-600',
-        info: 'bg-placar-card border-placar-red',
-        warning: 'bg-yellow-700 border-yellow-600'
-      };
+      const colors = { success: 'bg-green-600 border-green-500', error: 'bg-red-700 border-red-600', info: 'bg-placar-card border-placar-red', warning: 'bg-yellow-700 border-yellow-600' };
       const icons = { success: '&#10003;', error: '&#10007;', info: '&#9432;', warning: '&#9888;' };
       const el = document.createElement('div');
-      el.className = `toast pointer-events-auto ${colors[tipo] || colors.info} border rounded-lg px-4 py-3 shadow-xl flex items-center gap-3 max-w-sm`;
+      el.className = `toast pointer-events-auto ${colors[tipo] || colors.info} border rounded-lg px-4 py-3 shadow-xl flex items-center gap-3 max-w-sm text-white`;
       el.innerHTML = `<span class="text-lg">${icons[tipo] || ''}</span><span class="text-sm font-medium">${msg}</span>`;
       container.appendChild(el);
       requestAnimationFrame(() => el.classList.add('show'));
-      setTimeout(() => {
-        el.classList.remove('show');
-        el.classList.add('hide');
-        setTimeout(() => el.remove(), 400);
-      }, 3500);
+      setTimeout(() => { el.classList.remove('show'); el.classList.add('hide'); setTimeout(() => el.remove(), 400); }, 3500);
     }
 
     // ==================== STORAGE ====================
-    function safeGet(key, fallback = null) {
-      try { return localStorage.getItem(key) ?? fallback; } catch (e) { return fallback; }
-    }
-    function safeSet(key, value) {
-      try { localStorage.setItem(key, value); return true; } catch (e) { return false; }
-    }
-    function safeRemove(key) {
-      try { localStorage.removeItem(key); return true; } catch (e) { return false; }
+    function safeGet(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch(e) { return fallback; } }
+    function safeSet(key, value) { try { localStorage.setItem(key, value); return true; } catch(e) { return false; } }
+    function safeRemove(key) { try { localStorage.removeItem(key); return true; } catch(e) { return false; } }
+
+    // ==================== COLLAPSIBLE CONFIG ====================
+    function toggleConfig() {
+      const content = document.getElementById('configContent');
+      const arrow = document.getElementById('configArrow');
+      content.classList.toggle('open');
+      arrow.classList.toggle('open');
     }
 
-    // ==================== DNA / PROMPTS ====================
+    // ==================== DNA / TONE ====================
     const DNA_RDT = `Voce e o redator oficial da RDT Futebol. Seu jeito de escrever e o seguinte:
 
 JEITO RDT (DNA):
@@ -484,32 +556,27 @@ Regras importantes:
 
     const TONE_MODIFIERS = {
       equilibrado: '',
-      provocador: '\n\nTOM ESPECIFICO: Seja mais provocador e ousado nesta materia. Cutuce as rivalidades, faca perguntas incomodas, lance opinioes fortes. Sempre com respeito, mas sem medo de polemizar.',
-      emocional: '\n\nTOM ESPECIFICO: Carregue mais na emocao nesta materia. Fale com o coracao do torcedor, use metaforas de paixao, sofrimento e alegria. Faca o leitor sentir o jogo na alma.',
-      tecnico: '\n\nTOM ESPECIFICO: Foque mais na analise tatica e tecnica nesta materia. Use termos taticos (linha de 4, pressing alto, transicao, etc.), analise esquemas, movimentacoes e decisoes tecnicas. Mantenha acessivel mas com profundidade.',
-      humorado: '\n\nTOM ESPECIFICO: Seja mais bem-humorado e leve nesta materia. Use ironias inteligentes, comparacoes engracadas, trocadilhos com futebol. Faca o leitor rir enquanto se informa.'
+      provocador: '\n\nTOM ESPECIFICO: Seja mais provocador e ousado. Cutuce rivalidades, faca perguntas incomodas, lance opinioes fortes. Sempre com respeito, mas sem medo de polemizar.',
+      emocional: '\n\nTOM ESPECIFICO: Carregue mais na emocao. Fale com o coracao do torcedor, use metaforas de paixao, sofrimento e alegria. Faca o leitor sentir o jogo na alma.',
+      tecnico: '\n\nTOM ESPECIFICO: Foque na analise tatica e tecnica. Use termos taticos (linha de 4, pressing alto, transicao), analise esquemas e movimentacoes. Mantenha acessivel mas com profundidade.',
+      humorado: '\n\nTOM ESPECIFICO: Seja mais bem-humorado e leve. Use ironias inteligentes, comparacoes engracadas, trocadilhos com futebol. Faca o leitor rir enquanto se informa.'
     };
-
     let tomSelecionado = 'equilibrado';
-
     function selecionarTom(tom) {
       tomSelecionado = tom;
-      document.querySelectorAll('.tone-option').forEach(el => {
-        el.classList.toggle('selected', el.dataset.tone === tom);
-      });
+      document.querySelectorAll('.tone-option').forEach(el => el.classList.toggle('selected', el.dataset.tone === tom));
     }
 
     // ==================== TEMPLATES ====================
     const TEMPLATES = {
       prejogo: { tema: '', contexto: 'TIPO: Materia pre-jogo.\n\nPreencha:\n- Times que se enfrentam:\n- Campeonato e rodada:\n- Situacao na tabela:\n- Desfalques e retornos:\n- Historico do confronto:\n- Expectativa/clima:' },
       posjogo: { tema: '', contexto: 'TIPO: Materia pos-jogo.\n\nPreencha:\n- Placar final:\n- Gols (quem fez e como):\n- Destaques positivos e negativos:\n- Lances polemicos:\n- Consequencias na tabela:\n- Proximos jogos:' },
-      transferencia: { tema: '', contexto: 'TIPO: Janela de transferencias.\n\nPreencha:\n- Jogador em questao:\n- Clube de origem e destino:\n- Valores envolvidos:\n- Status da negociacao (rumor/oficial):\n- Como o jogador se encaixa:\n- Reacao da torcida:' },
-      tatica: { tema: '', contexto: 'TIPO: Analise tatica.\n\nPreencha:\n- Time analisado:\n- Esquema tatico:\n- Pontos fortes do sistema:\n- Vulnerabilidades:\n- Jogadores-chave no esquema:\n- Comparacao com jogos anteriores:' },
-      bastidores: { tema: '', contexto: 'TIPO: Bastidores.\n\nPreencha:\n- Clube envolvido:\n- O que esta acontecendo nos bastidores:\n- Fontes (o que se sabe vs especulacao):\n- Impacto no elenco/torcida:\n- Contexto politico do clube:' },
+      transferencia: { tema: '', contexto: 'TIPO: Janela de transferencias.\n\nPreencha:\n- Jogador em questao:\n- Clube de origem e destino:\n- Valores envolvidos:\n- Status (rumor/oficial):\n- Como o jogador se encaixa:\n- Reacao da torcida:' },
+      tatica: { tema: '', contexto: 'TIPO: Analise tatica.\n\nPreencha:\n- Time analisado:\n- Esquema tatico:\n- Pontos fortes:\n- Vulnerabilidades:\n- Jogadores-chave:\n- Comparacao com jogos anteriores:' },
+      bastidores: { tema: '', contexto: 'TIPO: Bastidores.\n\nPreencha:\n- Clube envolvido:\n- O que esta acontecendo:\n- Fontes (fato vs especulacao):\n- Impacto no elenco/torcida:\n- Contexto politico do clube:' },
       polemica: { tema: '', contexto: 'TIPO: Polemica da rodada.\n\nPreencha:\n- O que aconteceu:\n- Times/jogadores envolvidos:\n- Lance(s) polemico(s):\n- O que dizem as regras:\n- Opiniao da arbitragem:\n- Repercussao:' },
-      cronica: { tema: '', contexto: 'TIPO: Cronica de jogo (narrativa literaria).\n\nPreencha:\n- Jogo (times e placar):\n- Momento marcante:\n- Emocao predominante:\n- Personagem principal:\n- Atmosfera do estadio:' }
+      cronica: { tema: '', contexto: 'TIPO: Cronica de jogo.\n\nPreencha:\n- Jogo (times e placar):\n- Momento marcante:\n- Emocao predominante:\n- Personagem principal:\n- Atmosfera do estadio:' }
     };
-
     function aplicarTemplate(tipo) {
       const t = TEMPLATES[tipo];
       if (!t) return;
@@ -538,14 +605,20 @@ Regras importantes:
       ]
     };
 
+    // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', () => {
       const savedKey = safeGet('rdt_api_key');
       const savedProvider = safeGet('rdt_provider', 'groq');
-      if (savedKey) document.getElementById('apiKey').value = savedKey;
+      if (savedKey) {
+        document.getElementById('apiKey').value = savedKey;
+        document.getElementById('configStatus').classList.remove('hidden');
+      }
       document.getElementById('provider').value = savedProvider;
       atualizarModelos();
       document.getElementById('provider').addEventListener('change', atualizarModelos);
       atualizarBadgeHistorico();
+      restaurarRascunho();
+      iniciarAutoSave();
     });
 
     function atualizarModelos() {
@@ -554,8 +627,7 @@ Regras importantes:
       select.innerHTML = '';
       MODELS[provider].forEach(m => {
         const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = m.name;
+        opt.value = m.id; opt.textContent = m.name;
         select.appendChild(opt);
       });
     }
@@ -565,55 +637,57 @@ Regras importantes:
       const provider = document.getElementById('provider').value;
       const feedback = document.getElementById('keyFeedback');
       const btn = document.getElementById('btnSalvarKey');
-
-      if (!key) {
-        safeRemove('rdt_api_key');
-        feedback.textContent = 'Cole a chave antes de salvar.';
-        feedback.className = 'text-[11px] mt-1.5 text-yellow-400';
-        feedback.classList.remove('hidden');
-        return;
-      }
-
-      if (!key.startsWith('gsk_') && !key.startsWith('sk-')) {
-        feedback.textContent = 'A chave parece invalida. Groq: gsk_ | DeepSeek/OpenAI: sk-';
-        feedback.className = 'text-[11px] mt-1.5 text-yellow-400';
-        feedback.classList.remove('hidden');
-        return;
-      }
-
-      safeSet('rdt_api_key', key);
-      safeSet('rdt_provider', provider);
-      feedback.textContent = 'Chave salva com sucesso!';
-      feedback.className = 'text-[11px] mt-1.5 text-green-400';
-      feedback.classList.remove('hidden');
-      toast('API Key salva com sucesso!', 'success');
-
-      btn.textContent = 'Salvo';
-      btn.classList.add('bg-green-600', 'border-green-500', 'text-white');
-      setTimeout(() => {
-        btn.textContent = 'Salvar';
-        btn.classList.remove('bg-green-600', 'border-green-500', 'text-white');
-      }, 2000);
+      if (!key) { safeRemove('rdt_api_key'); feedback.textContent = 'Cole a chave antes de salvar.'; feedback.className = 'text-[11px] mt-1.5 text-yellow-400'; feedback.classList.remove('hidden'); return; }
+      if (!key.startsWith('gsk_') && !key.startsWith('sk-')) { feedback.textContent = 'Chave invalida. Groq: gsk_ | DeepSeek/OpenAI: sk-'; feedback.className = 'text-[11px] mt-1.5 text-yellow-400'; feedback.classList.remove('hidden'); return; }
+      safeSet('rdt_api_key', key); safeSet('rdt_provider', provider);
+      feedback.textContent = 'Chave salva com sucesso!'; feedback.className = 'text-[11px] mt-1.5 text-green-400'; feedback.classList.remove('hidden');
+      document.getElementById('configStatus').classList.remove('hidden');
+      toast('API Key salva!', 'success');
+      btn.textContent = 'Salvo'; btn.classList.add('bg-green-600', 'border-green-500', 'text-white');
+      setTimeout(() => { btn.textContent = 'Salvar'; btn.classList.remove('bg-green-600', 'border-green-500', 'text-white'); }, 2000);
     }
+
+    // ==================== AUTO-SAVE DRAFT ====================
+    function iniciarAutoSave() {
+      setInterval(() => {
+        const tema = document.getElementById('tema').value;
+        const contexto = document.getElementById('contexto').value;
+        const url = document.getElementById('urlNoticia').value;
+        if (tema || contexto || url) {
+          safeSet('rdt_draft', JSON.stringify({ tema, contexto, url, tom: tomSelecionado }));
+          const ind = document.getElementById('autosaveIndicator');
+          ind.classList.remove('hidden');
+          ind.classList.add('autosave-flash');
+          setTimeout(() => { ind.classList.add('hidden'); ind.classList.remove('autosave-flash'); }, 1500);
+        }
+      }, 15000);
+    }
+    function restaurarRascunho() {
+      try {
+        const draft = JSON.parse(safeGet('rdt_draft', 'null'));
+        if (!draft) return;
+        if (draft.tema) document.getElementById('tema').value = draft.tema;
+        if (draft.contexto) document.getElementById('contexto').value = draft.contexto;
+        if (draft.url) document.getElementById('urlNoticia').value = draft.url;
+        if (draft.tom) selecionarTom(draft.tom);
+      } catch(e) {}
+    }
+
+    // ==================== KEYBOARD SHORTCUTS ====================
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        gerarComIA('full');
+      }
+    });
 
     // ==================== HELPERS ====================
     function getTema() { return document.getElementById('tema').value.trim() || 'futebol brasileiro em geral'; }
     function getContexto() { return document.getElementById('contexto').value.trim(); }
-
-    function setBotoesDisabled(disabled) {
-      ['btnFull', 'btnLegendas', 'btnTrechos', 'btnUrl', 'btnThreads', 'btnImgPrompt'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.disabled = disabled;
-      });
-    }
-
-    function mostrarLoading(msg) {
-      document.getElementById('loadingBox').classList.remove('hidden');
-      document.getElementById('loadingText').textContent = msg || 'Gerando conteudo no jeito RDT...';
-    }
-    function esconderLoading() {
-      document.getElementById('loadingBox').classList.add('hidden');
-    }
+    function setBotoesDisabled(d) { ['btnFull','btnLegendas','btnTrechos','btnUrl','btnThreads','btnImgPrompt'].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = d; }); }
+    function mostrarLoading(msg) { document.getElementById('loadingBox').classList.remove('hidden'); document.getElementById('loadingText').textContent = msg || 'Gerando conteudo no jeito RDT...'; }
+    function esconderLoading() { document.getElementById('loadingBox').classList.add('hidden'); }
+    function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
     // ==================== TABS ====================
     function trocarTab(tab) {
@@ -621,75 +695,59 @@ Regras importantes:
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
     }
 
+    // ==================== STATS ====================
+    function atualizarStats(texto) {
+      const words = texto.trim().split(/\s+/).filter(w => w.length > 0).length;
+      const chars = texto.length;
+      const readMin = Math.max(1, Math.ceil(words / 200));
+      document.getElementById('statWords').textContent = `${words} palavras`;
+      document.getElementById('statChars').textContent = `${chars} caracteres`;
+      document.getElementById('statReadTime').textContent = `~${readMin} min leitura`;
+    }
+
     // ==================== GENERATE ====================
     async function gerarPorUrl() {
       const url = document.getElementById('urlNoticia').value.trim();
       if (!url) { toast('Cole a URL da noticia primeiro.', 'warning'); return; }
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        toast('A URL precisa comecar com http:// ou https://', 'warning'); return;
-      }
+      if (!url.startsWith('http://') && !url.startsWith('https://')) { toast('URL precisa comecar com http(s)://', 'warning'); return; }
       const key = document.getElementById('apiKey').value.trim();
       if (!key) { toast('Salve sua API Key antes de gerar.', 'warning'); return; }
-
-      setBotoesDisabled(true);
-      mostrarLoading('Lendo a noticia da URL...');
-
+      setBotoesDisabled(true); mostrarLoading('Lendo a noticia da URL...');
       try {
-        const readerUrl = 'https://r.jina.ai/' + url;
-        const resp = await fetch(readerUrl, { headers: { 'Accept': 'text/plain' } });
-        if (!resp.ok) throw new Error('Nao consegui ler a pagina. Cole o texto manualmente.');
-
-        let textoPagina = await resp.text();
-        if (textoPagina.length > 12000) textoPagina = textoPagina.substring(0, 12000) + '\n\n[... texto cortado ...]';
-
-        document.getElementById('contexto').value = textoPagina;
-        if (!document.getElementById('tema').value.trim()) {
-          document.getElementById('tema').value = 'Analise da noticia (gerada a partir da URL)';
-        }
-
+        const resp = await fetch('https://r.jina.ai/' + url, { headers: { 'Accept': 'text/plain' } });
+        if (!resp.ok) throw new Error('Nao consegui ler a pagina.');
+        let txt = await resp.text();
+        if (txt.length > 12000) txt = txt.substring(0, 12000) + '\n\n[... texto cortado ...]';
+        document.getElementById('contexto').value = txt;
+        if (!document.getElementById('tema').value.trim()) document.getElementById('tema').value = 'Analise da noticia (gerada a partir da URL)';
         toast('Noticia lida! Gerando conteudo...', 'info');
         await gerarComIA('full');
-      } catch (err) {
-        esconderLoading();
-        toast('Erro ao ler URL: ' + err.message, 'error');
-      } finally {
-        setBotoesDisabled(false);
-      }
+      } catch (err) { esconderLoading(); toast('Erro ao ler URL: ' + err.message, 'error'); }
+      finally { setBotoesDisabled(false); }
     }
 
     function buildUserPrompt(modo, tema, contexto) {
-      if (modo === 'full') {
-        return `TEMA DA MATERIA: ${tema}\n\n${contexto ? `CONTEXTO / PONTOS CHAVE:\n${contexto}\n` : ''}\nTAREFA:\nGere o conteudo completo no formato abaixo (respeite exatamente os marcadores):\n\n=== MATERIA COMPLETA ===\n(Escreva uma materia de 400 a 700 palavras no jeito RDT sobre o tema. Comece direto, sem titulo formal. Seja envolvente.)\n\n=== TRECHOS 300 ===\n(Divida a materia acima em trechos de no maximo 300 caracteres cada. Cada trecho deve fazer sentido sozinho e terminar em ponto final ou interrogacao. Numere: 1), 2), 3)...)\n\n=== LEGENDAS INSTAGRAM ===\n(Gere 4 legendas diferentes otimizadas para viralizar no Instagram.\nCada legenda deve ter:\n- Gancho forte nas primeiras palavras\n- Emocao ou provocacao inteligente\n- 1-2 emojis no maximo\n- Call-to-action ou pergunta no final\n- 4 a 8 hashtags relevantes no final\nSepare cada legenda com ---)\n\n=== RESUMO FACEBOOK ===\n(Escreva um resumo de 2 a 4 paragrafos curtos para Facebook, com tom de resenha, terminando com uma pergunta forte que incentive comentarios e compartilhamentos.)`;
-      } else if (modo === 'legendas') {
-        return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nGere 5 legendas de Instagram no jeito RDT, otimizadas para viralizar.\nCada legenda deve ter:\n- Gancho forte nas primeiras palavras\n- Emocao ou provocacao inteligente (sem ofender)\n- 1-2 emojis no maximo\n- Call-to-action ou pergunta no final\n- 4 a 8 hashtags relevantes\n\nSepare cada legenda com ---\nComece direto, sem introducao.`;
-      } else if (modo === 'trechos') {
-        return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nEscreva uma materia curta (250-400 palavras) no jeito RDT e em seguida divida-a em trechos de no maximo 300 caracteres.\nCada trecho deve fazer sentido sozinho.\n\nFormato:\n=== MATERIA COMPLETA ===\n(texto)\n\n=== TRECHOS 300 ===\n1) ...\n2) ...\n3) ...`;
-      } else if (modo === 'threads') {
-        return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nCrie uma thread para X (Twitter) no jeito RDT sobre esse tema.\n\nRegras:\n- Cada tweet deve ter no MAXIMO 280 caracteres\n- O primeiro tweet deve ser o gancho mais forte (viral)\n- Gere entre 5 e 10 tweets encadeados\n- Use emojis com moderacao (1 por tweet no maximo)\n- O ultimo tweet deve ter call-to-action (RT, seguir, comentar)\n- Numere cada tweet: 1/, 2/, 3/...\n\nFormato:\n=== THREAD X ===\n1/ [tweet]\n2/ [tweet]\n...`;
-      } else if (modo === 'imgprompt') {
-        return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nCrie 3 prompts de imagem (para Midjourney ou DALL-E) que serviriam como capa/ilustracao para uma materia sobre esse tema.\n\nRegras:\n- Prompts em ingles (padrao das ferramentas)\n- Estilo editorial esportivo, dramatico, cinematografico\n- Inclua detalhes de iluminacao, composicao e mood\n- Cada prompt deve ter uma abordagem visual diferente\n- NAO inclua nomes reais de jogadores ou logos de clubes nos prompts\n\nFormato:\n=== PROMPTS DE IMAGEM ===\n1) [prompt]\n2) [prompt]\n3) [prompt]`;
-      }
+      if (modo === 'full') return `TEMA DA MATERIA: ${tema}\n\n${contexto ? `CONTEXTO / PONTOS CHAVE:\n${contexto}\n` : ''}\nTAREFA:\nGere o conteudo completo no formato abaixo (respeite exatamente os marcadores):\n\n=== MATERIA COMPLETA ===\n(Escreva uma materia de 400 a 700 palavras no jeito RDT sobre o tema. Comece direto, sem titulo formal. Seja envolvente.)\n\n=== TRECHOS 300 ===\n(Divida a materia acima em trechos de no maximo 300 caracteres cada. Cada trecho deve fazer sentido sozinho e terminar em ponto final ou interrogacao. Numere: 1), 2), 3)...)\n\n=== LEGENDAS INSTAGRAM ===\n(Gere 4 legendas diferentes otimizadas para viralizar no Instagram.\nCada legenda deve ter:\n- Gancho forte nas primeiras palavras\n- Emocao ou provocacao inteligente\n- 1-2 emojis no maximo\n- Call-to-action ou pergunta no final\n- 4 a 8 hashtags relevantes no final\nSepare cada legenda com ---)\n\n=== RESUMO FACEBOOK ===\n(Escreva um resumo de 2 a 4 paragrafos curtos para Facebook, com tom de resenha, terminando com uma pergunta forte que incentive comentarios e compartilhamentos.)`;
+      if (modo === 'legendas') return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nGere 5 legendas de Instagram no jeito RDT, otimizadas para viralizar.\nCada legenda deve ter:\n- Gancho forte nas primeiras palavras\n- Emocao ou provocacao inteligente (sem ofender)\n- 1-2 emojis no maximo\n- Call-to-action ou pergunta no final\n- 4 a 8 hashtags relevantes\n\nSepare cada legenda com ---\nComece direto, sem introducao.`;
+      if (modo === 'trechos') return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nEscreva uma materia curta (250-400 palavras) no jeito RDT e divida em trechos de no maximo 300 caracteres. Cada trecho deve fazer sentido sozinho.\n\nFormato:\n=== MATERIA COMPLETA ===\n(texto)\n\n=== TRECHOS 300 ===\n1) ...\n2) ...`;
+      if (modo === 'threads') return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nCrie uma thread para X (Twitter) no jeito RDT.\n\nRegras:\n- Cada tweet MAXIMO 280 caracteres\n- Primeiro tweet = gancho mais forte\n- 5 a 10 tweets encadeados\n- Emojis com moderacao (1 por tweet max)\n- Ultimo tweet = call-to-action\n- Numere: 1/, 2/, 3/...\n\nFormato:\n=== THREAD X ===\n1/ [tweet]\n2/ [tweet]\n...`;
+      if (modo === 'imgprompt') return `TEMA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\nCrie 3 prompts de imagem (Midjourney/DALL-E) para ilustrar uma materia sobre esse tema.\n\nRegras:\n- Prompts em ingles\n- Estilo editorial esportivo, dramatico, cinematografico\n- Detalhes de iluminacao, composicao e mood\n- Cada prompt com abordagem visual diferente\n- SEM nomes reais de jogadores ou logos\n\nFormato:\n=== PROMPTS DE IMAGEM ===\n1) [prompt]\n2) [prompt]\n3) [prompt]`;
       return '';
     }
 
     async function gerarComIA(modo = 'full') {
       const key = document.getElementById('apiKey').value.trim();
       if (!key) { toast('Salve sua API Key primeiro.', 'warning'); return; }
-
-      const tema = getTema();
-      const contexto = getContexto();
+      const tema = getTema(), contexto = getContexto();
       const provider = document.getElementById('provider').value;
       const model = document.getElementById('model').value;
       const systemPrompt = DNA_RDT + (TONE_MODIFIERS[tomSelecionado] || '');
       const userPrompt = buildUserPrompt(modo, tema, contexto);
 
-      setBotoesDisabled(true);
-      mostrarLoading('Gerando conteudo no jeito RDT...');
-
+      setBotoesDisabled(true); mostrarLoading('Gerando conteudo no jeito RDT...');
       const streamBox = document.getElementById('streamBox');
       const streamContent = document.getElementById('streamContent');
-      streamBox.classList.remove('hidden');
-      streamContent.textContent = '';
+      streamBox.classList.remove('hidden'); streamContent.textContent = '';
 
       try {
         let apiUrl;
@@ -700,47 +758,26 @@ Regras importantes:
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-          body: JSON.stringify({
-            model: model,
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt }
-            ],
-            temperature: 0.75,
-            max_tokens: 4000,
-            stream: true
-          })
+          body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.75, max_tokens: 4000, stream: true })
         });
-
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.error?.message || `Erro ${response.status}`);
-        }
+        if (!response.ok) { const err = await response.json().catch(() => ({})); throw new Error(err.error?.message || `Erro ${response.status}`); }
 
         let fullContent = '';
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-          for (const line of lines) {
+          for (const line of chunk.split('\n')) {
             const trimmed = line.trim();
             if (!trimmed.startsWith('data: ') || trimmed === 'data: [DONE]') continue;
             try {
-              const json = JSON.parse(trimmed.slice(6));
-              const delta = json.choices?.[0]?.delta?.content || '';
-              if (delta) {
-                fullContent += delta;
-                streamContent.textContent = fullContent;
-                streamBox.scrollTop = streamBox.scrollHeight;
-              }
-            } catch (e) {}
+              const delta = JSON.parse(trimmed.slice(6)).choices?.[0]?.delta?.content || '';
+              if (delta) { fullContent += delta; streamContent.textContent = fullContent; streamBox.scrollTop = streamBox.scrollHeight; }
+            } catch(e) {}
           }
         }
-
         if (!fullContent) throw new Error('A IA nao retornou conteudo.');
 
         streamBox.classList.add('hidden');
@@ -748,55 +785,36 @@ Regras importantes:
         processarResposta(modo);
         esconderLoading();
         toast('Conteudo gerado com sucesso!', 'success');
-
         salvarNoHistorico(tema, modo, fullContent, provider, model);
-      } catch (err) {
-        streamBox.classList.add('hidden');
-        esconderLoading();
-        toast('Erro: ' + err.message, 'error');
-      } finally {
-        setBotoesDisabled(false);
-      }
+        safeRemove('rdt_draft');
+      } catch (err) { streamBox.classList.add('hidden'); esconderLoading(); toast('Erro: ' + err.message, 'error'); }
+      finally { setBotoesDisabled(false); }
     }
 
     // ==================== PROCESS ====================
     function processarResposta(modo) {
       const texto = document.getElementById('respostaIA').value.trim();
       if (!texto) { toast('Nenhum conteudo para processar.', 'warning'); return; }
+      if (modo === 'threads') { processarThreads(texto); return; }
+      if (modo === 'imgprompt') { processarImgPrompt(texto); return; }
 
-      if (modo === 'threads') {
-        processarThreads(texto);
-        return;
-      }
-      if (modo === 'imgprompt') {
-        processarImgPrompt(texto);
-        return;
-      }
-
-      const materia = extrairSecao(texto, '=== MATERIA COMPLETA ===', '=== TRECHOS 300 ===') ||
-                      extrairSecao(texto, 'MATERIA COMPLETA', 'TRECHOS') || texto;
-      const trechosRaw = extrairSecao(texto, '=== TRECHOS 300 ===', '=== LEGENDAS INSTAGRAM ===') ||
-                         extrairSecao(texto, 'TRECHOS 300', 'LEGENDAS');
-      const legendasRaw = extrairSecao(texto, '=== LEGENDAS INSTAGRAM ===', '=== RESUMO FACEBOOK ===') ||
-                          extrairSecao(texto, 'LEGENDAS INSTAGRAM', 'RESUMO FACEBOOK') ||
-                          (texto.includes('---') && !texto.includes('=== MATERIA') ? texto : null);
-      const resumo = extrairSecao(texto, '=== RESUMO FACEBOOK ===', null) ||
-                     extrairSecao(texto, 'RESUMO FACEBOOK', null);
+      const materia = extrairSecao(texto, '=== MATERIA COMPLETA ===', '=== TRECHOS 300 ===') || extrairSecao(texto, 'MATERIA COMPLETA', 'TRECHOS') || texto;
+      const trechosRaw = extrairSecao(texto, '=== TRECHOS 300 ===', '=== LEGENDAS INSTAGRAM ===') || extrairSecao(texto, 'TRECHOS 300', 'LEGENDAS');
+      const legendasRaw = extrairSecao(texto, '=== LEGENDAS INSTAGRAM ===', '=== RESUMO FACEBOOK ===') || extrairSecao(texto, 'LEGENDAS INSTAGRAM', 'RESUMO FACEBOOK') || (texto.includes('---') && !texto.includes('=== MATERIA') ? texto : null);
+      const resumo = extrairSecao(texto, '=== RESUMO FACEBOOK ===', null) || extrairSecao(texto, 'RESUMO FACEBOOK', null);
 
       document.getElementById('materiaCompleta').textContent = materia.trim();
+      atualizarStats(materia.trim());
 
       const containerTrechos = document.getElementById('trechos300');
       containerTrechos.innerHTML = '';
-      let trechos = trechosRaw
-        ? trechosRaw.split(/\n\s*\d+\)\s*/).filter(t => t.trim().length > 20)
-        : [];
+      let trechos = trechosRaw ? trechosRaw.split(/\n\s*\d+\)\s*/).filter(t => t.trim().length > 20) : [];
       if (trechos.length < 2) trechos = dividirEm300(materia);
-
       trechos.forEach((t, i) => {
         const clean = t.trim().replace(/`/g, "'");
         const div = document.createElement('div');
         div.className = 'chunk-card bg-placar-black border border-white/10 rounded-lg p-4';
-        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">Trecho ${i + 1}</span><span class="text-xs text-placar-muted">${clean.length} chars</span></div><p class="text-sm leading-relaxed">${escapeHtml(clean)}</p><button onclick='copiarString(${JSON.stringify(clean)})' class="mt-3 text-xs text-placar-red hover:underline">Copiar</button>`;
+        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">Trecho ${i+1}</span><span class="text-xs text-placar-muted">${clean.length} chars</span></div><p class="text-sm leading-relaxed">${escapeHtml(clean)}</p><button onclick='copiarString(${JSON.stringify(clean)})' class="mt-3 text-xs text-placar-red hover:underline">Copiar</button>`;
         containerTrechos.appendChild(div);
       });
       document.getElementById('qtdTrechos').textContent = `${trechos.length} trechos`;
@@ -805,20 +823,17 @@ Regras importantes:
       containerLegendas.innerHTML = '';
       if (legendasRaw) {
         let legs = legendasRaw.split(/---+|\n\s*\d+[\.\)]\s*/).filter(l => l.trim().length > 30);
-        if (legs.length === 0) legs = [legendasRaw];
+        if (!legs.length) legs = [legendasRaw];
         legs.forEach((leg, i) => {
           const clean = leg.trim();
           const div = document.createElement('div');
           div.className = 'bg-placar-black border border-white/10 rounded-lg p-4';
-          div.innerHTML = `<div class="flex justify-between mb-2"><span class="text-xs font-bold text-placar-red">Legenda ${i + 1}</span><button onclick='copiarString(${JSON.stringify(clean)})' class="text-xs text-placar-muted hover:text-white">Copiar</button></div><p class="text-sm whitespace-pre-wrap">${escapeHtml(clean)}</p>`;
+          div.innerHTML = `<div class="flex justify-between mb-2"><span class="text-xs font-bold text-placar-red">Legenda ${i+1}</span><button onclick='copiarString(${JSON.stringify(clean)})' class="text-xs text-placar-muted hover:text-white">Copiar</button></div><p class="text-sm whitespace-pre-wrap">${escapeHtml(clean)}</p>`;
           containerLegendas.appendChild(div);
         });
-      } else {
-        containerLegendas.innerHTML = '<p class="text-placar-muted text-sm">Nenhuma legenda detectada.</p>';
-      }
+      } else { containerLegendas.innerHTML = '<p class="text-placar-muted text-sm">Nenhuma legenda detectada.</p>'; }
 
       document.getElementById('resumoFB').textContent = resumo ? resumo.trim() : 'Nenhum resumo detectado.';
-
       document.getElementById('resultados').classList.remove('hidden');
       trocarTab('materia');
       document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
@@ -829,16 +844,14 @@ Regras importantes:
       const tweets = raw.split(/\n\s*\d+[\/\)]\s*/).filter(t => t.trim().length > 5);
       const container = document.getElementById('threadsContent');
       container.innerHTML = '';
-
       tweets.forEach((tw, i) => {
         const clean = tw.trim();
-        const isOver = clean.length > 280;
+        const over = clean.length > 280;
         const div = document.createElement('div');
         div.className = 'bg-placar-black border border-white/10 rounded-lg p-4';
-        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">${i + 1}/${tweets.length}</span><div class="flex items-center gap-2"><span class="text-xs ${isOver ? 'text-red-400' : 'text-placar-muted'}">${clean.length}/280</span><button onclick='copiarString(${JSON.stringify(clean)})' class="text-xs text-placar-muted hover:text-white">Copiar</button></div></div><p class="text-sm leading-relaxed">${escapeHtml(clean)}</p>`;
+        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">${i+1}/${tweets.length}</span><div class="flex items-center gap-2"><span class="text-xs ${over?'text-red-400':'text-placar-muted'}">${clean.length}/280</span><button onclick='copiarString(${JSON.stringify(clean)})' class="text-xs text-placar-muted hover:text-white">Copiar</button></div></div><p class="text-sm leading-relaxed">${escapeHtml(clean)}</p>`;
         container.appendChild(div);
       });
-
       document.getElementById('tabThreads').classList.remove('hidden');
       document.getElementById('resultados').classList.remove('hidden');
       trocarTab('threads');
@@ -855,12 +868,6 @@ Regras importantes:
     }
 
     // ==================== UTILITIES ====================
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
     function dividir300() {
       const texto = document.getElementById('respostaIA').value.trim() || document.getElementById('materiaCompleta').textContent;
       if (!texto) { toast('Cole um texto primeiro.', 'warning'); return; }
@@ -870,36 +877,27 @@ Regras importantes:
       trechos.forEach((t, i) => {
         const div = document.createElement('div');
         div.className = 'chunk-card bg-placar-black border border-white/10 rounded-lg p-4';
-        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">Trecho ${i + 1}</span><span class="text-xs text-placar-muted">${t.length} chars</span></div><p class="text-sm leading-relaxed">${escapeHtml(t)}</p><button onclick='copiarString(${JSON.stringify(t)})' class="mt-3 text-xs text-placar-red hover:underline">Copiar</button>`;
+        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-xs font-bold text-placar-red">Trecho ${i+1}</span><span class="text-xs text-placar-muted">${t.length} chars</span></div><p class="text-sm leading-relaxed">${escapeHtml(t)}</p><button onclick='copiarString(${JSON.stringify(t)})' class="mt-3 text-xs text-placar-red hover:underline">Copiar</button>`;
         container.appendChild(div);
       });
       document.getElementById('qtdTrechos').textContent = `${trechos.length} trechos`;
       document.getElementById('resultados').classList.remove('hidden');
       document.getElementById('materiaCompleta').textContent = texto;
+      atualizarStats(texto);
       trocarTab('trechos');
     }
 
     function dividirEm300(texto) {
       const max = 300;
       const frases = texto.match(/[^.!?]+[.!?]+/g) || [texto];
-      const trechos = [];
-      let atual = '';
+      const trechos = []; let atual = '';
       for (let frase of frases) {
         frase = frase.trim();
-        if ((atual + ' ' + frase).length <= max) {
-          atual = (atual + ' ' + frase).trim();
-        } else {
+        if ((atual + ' ' + frase).length <= max) { atual = (atual + ' ' + frase).trim(); }
+        else {
           if (atual) trechos.push(atual);
-          if (frase.length > max) {
-            let resto = frase;
-            while (resto.length > max) {
-              let corte = resto.lastIndexOf(' ', max);
-              if (corte < 50) corte = max;
-              trechos.push(resto.substring(0, corte).trim());
-              resto = resto.substring(corte).trim();
-            }
-            atual = resto;
-          } else { atual = frase; }
+          if (frase.length > max) { let r = frase; while (r.length > max) { let c = r.lastIndexOf(' ', max); if (c < 50) c = max; trechos.push(r.substring(0, c).trim()); r = r.substring(c).trim(); } atual = r; }
+          else { atual = frase; }
         }
       }
       if (atual) trechos.push(atual);
@@ -912,77 +910,93 @@ Regras importantes:
       const start = i + inicio.length;
       if (!fim) return texto.substring(start).trim();
       const j = texto.indexOf(fim, start);
-      if (j === -1) return texto.substring(start).trim();
-      return texto.substring(start, j).trim();
+      return j === -1 ? texto.substring(start).trim() : texto.substring(start, j).trim();
     }
 
     function gerarPromptCompleto() {
-      const tema = getTema();
-      const contexto = getContexto();
-      const prompt = `${DNA_RDT}${TONE_MODIFIERS[tomSelecionado] || ''}\n\n---\n\nTEMA DA MATERIA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\n---\n\nTAREFA:\nGere o conteudo completo no formato abaixo...\n\n=== MATERIA COMPLETA ===\n...\n=== TRECHOS 300 ===\n...\n=== LEGENDAS INSTAGRAM ===\n...\n=== RESUMO FACEBOOK ===\n...`;
+      const tema = getTema(), contexto = getContexto();
+      const prompt = `${DNA_RDT}${TONE_MODIFIERS[tomSelecionado] || ''}\n\n---\n\nTEMA DA MATERIA: ${tema}\n\n${contexto ? `CONTEXTO:\n${contexto}\n` : ''}\n---\n\nTAREFA:\nGere o conteudo completo...\n\n=== MATERIA COMPLETA ===\n...\n=== TRECHOS 300 ===\n...\n=== LEGENDAS INSTAGRAM ===\n...\n=== RESUMO FACEBOOK ===\n...`;
       document.getElementById('promptOutput').value = prompt;
       document.getElementById('promptSection').classList.remove('hidden');
-      toast('Prompt gerado! Clique em Copiar.', 'info');
+      toast('Prompt gerado!', 'info');
     }
 
     function limparTudo() {
-      ['tema', 'contexto', 'urlNoticia', 'promptOutput', 'respostaIA'].forEach(id => document.getElementById(id).value = '');
+      ['tema','contexto','urlNoticia','promptOutput','respostaIA'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('promptSection').classList.add('hidden');
       document.getElementById('resultados').classList.add('hidden');
       document.getElementById('streamBox').classList.add('hidden');
       esconderLoading();
+      safeRemove('rdt_draft');
       toast('Tudo limpo!', 'info');
     }
 
-    // ==================== COPY & SHARE ====================
-    function copiarTexto(id) {
-      const el = document.getElementById(id);
-      navigator.clipboard.writeText(el.innerText || el.textContent).then(() => toast('Copiado!', 'success'));
+    // ==================== COPY / SHARE / EXPORT ====================
+    function copiarTexto(id) { const el = document.getElementById(id); navigator.clipboard.writeText(el.innerText || el.textContent).then(() => toast('Copiado!', 'success')); }
+    function copiarString(str) { navigator.clipboard.writeText(str).then(() => toast('Copiado!', 'success')); }
+    function copiarPrompt() { navigator.clipboard.writeText(document.getElementById('promptOutput').value).then(() => toast('Prompt copiado!', 'success')); }
+
+    function copiarTudoFormatado() {
+      const materia = document.getElementById('materiaCompleta').textContent || '';
+      const resumo = document.getElementById('resumoFB').textContent || '';
+      const legendas = document.getElementById('legendasIG').innerText || '';
+      const trechos = document.getElementById('trechos300').innerText || '';
+      const threads = document.getElementById('threadsContent').innerText || '';
+      const imgPrompt = document.getElementById('imgPromptContent').textContent || '';
+
+      let output = '=== MATERIA COMPLETA ===\n\n' + materia;
+      if (trechos) output += '\n\n=== TRECHOS 300 ===\n\n' + trechos;
+      if (legendas) output += '\n\n=== LEGENDAS INSTAGRAM ===\n\n' + legendas;
+      if (resumo) output += '\n\n=== RESUMO FACEBOOK ===\n\n' + resumo;
+      if (threads) output += '\n\n=== THREADS X ===\n\n' + threads;
+      if (imgPrompt) output += '\n\n=== PROMPTS DE IMAGEM ===\n\n' + imgPrompt;
+
+      navigator.clipboard.writeText(output).then(() => toast('Tudo copiado!', 'success'));
     }
-    function copiarString(str) {
-      navigator.clipboard.writeText(str).then(() => toast('Copiado!', 'success'));
-    }
-    function copiarPrompt() {
-      const el = document.getElementById('promptOutput');
-      navigator.clipboard.writeText(el.value).then(() => toast('Prompt copiado!', 'success'));
+
+    function exportarTXT() {
+      const materia = document.getElementById('materiaCompleta').textContent || '';
+      const resumo = document.getElementById('resumoFB').textContent || '';
+      const legendas = document.getElementById('legendasIG').innerText || '';
+      const threads = document.getElementById('threadsContent').innerText || '';
+      const imgPrompt = document.getElementById('imgPromptContent').textContent || '';
+      const tema = document.getElementById('tema').value || 'materia';
+
+      let output = 'RDT FUTEBOL - ' + tema.toUpperCase() + '\n';
+      output += 'Gerado em: ' + new Date().toLocaleString('pt-BR') + '\n';
+      output += '='.repeat(50) + '\n\n';
+      output += 'MATERIA COMPLETA\n' + '-'.repeat(30) + '\n' + materia + '\n\n';
+      if (resumo) output += 'RESUMO FACEBOOK\n' + '-'.repeat(30) + '\n' + resumo + '\n\n';
+      if (legendas) output += 'LEGENDAS INSTAGRAM\n' + '-'.repeat(30) + '\n' + legendas + '\n\n';
+      if (threads) output += 'THREADS X\n' + '-'.repeat(30) + '\n' + threads + '\n\n';
+      if (imgPrompt) output += 'PROMPTS DE IMAGEM\n' + '-'.repeat(30) + '\n' + imgPrompt + '\n';
+
+      const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rdt-' + tema.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() + '.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Arquivo exportado!', 'success');
     }
 
     function compartilhar(plataforma) {
       const materia = document.getElementById('materiaCompleta').textContent || '';
       const resumo = document.getElementById('resumoFB').textContent || '';
       const texto = resumo || materia.substring(0, 500);
-      if (!texto) { toast('Gere uma materia antes de compartilhar.', 'warning'); return; }
-
-      const encoded = encodeURIComponent(texto);
-      if (plataforma === 'whatsapp') {
-        window.open('https://wa.me/?text=' + encoded, '_blank');
-      } else if (plataforma === 'x') {
-        const tweet = encodeURIComponent(texto.substring(0, 270) + '...');
-        window.open('https://twitter.com/intent/tweet?text=' + tweet, '_blank');
-      }
+      if (!texto) { toast('Gere uma materia primeiro.', 'warning'); return; }
+      if (plataforma === 'whatsapp') window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+      else if (plataforma === 'x') window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(texto.substring(0, 270) + '...'), '_blank');
     }
 
     // ==================== HISTORY ====================
-    function getHistorico() {
-      try { return JSON.parse(safeGet('rdt_historico', '[]')); } catch(e) { return []; }
-    }
-    function salvarHistoricoData(data) {
-      safeSet('rdt_historico', JSON.stringify(data));
-      atualizarBadgeHistorico();
-    }
+    function getHistorico() { try { return JSON.parse(safeGet('rdt_historico', '[]')); } catch(e) { return []; } }
+    function salvarHistoricoData(data) { safeSet('rdt_historico', JSON.stringify(data)); atualizarBadgeHistorico(); }
 
     function salvarNoHistorico(tema, modo, conteudo, provider, model) {
       const hist = getHistorico();
-      hist.unshift({
-        id: Date.now(),
-        data: new Date().toISOString(),
-        tema: tema,
-        modo: modo,
-        provider: provider,
-        model: model,
-        conteudo: conteudo.substring(0, 8000),
-        preview: conteudo.substring(0, 150)
-      });
+      hist.unshift({ id: Date.now(), data: new Date().toISOString(), tema, modo, provider, model, conteudo: conteudo.substring(0, 8000), preview: conteudo.substring(0, 150) });
       if (hist.length > 50) hist.length = 50;
       salvarHistoricoData(hist);
     }
@@ -990,59 +1004,34 @@ Regras importantes:
     function atualizarBadgeHistorico() {
       const badge = document.getElementById('histBadge');
       const count = getHistorico().length;
-      if (count > 0) {
-        badge.textContent = count;
-        badge.classList.remove('hidden');
-      } else {
-        badge.classList.add('hidden');
-      }
+      if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+      else { badge.classList.add('hidden'); }
     }
 
-    function abrirHistorico() {
-      document.getElementById('drawerOverlay').classList.add('open');
-      document.getElementById('drawerPanel').classList.add('open');
-      renderizarHistorico();
-    }
-    function fecharHistorico() {
-      document.getElementById('drawerOverlay').classList.remove('open');
-      document.getElementById('drawerPanel').classList.remove('open');
-    }
+    function abrirHistorico() { document.getElementById('drawerOverlay').classList.add('open'); document.getElementById('drawerPanel').classList.add('open'); renderizarHistorico(); }
+    function fecharHistorico() { document.getElementById('drawerOverlay').classList.remove('open'); document.getElementById('drawerPanel').classList.remove('open'); }
 
     function renderizarHistorico() {
       const busca = (document.getElementById('histSearch').value || '').toLowerCase();
       const hist = getHistorico().filter(h => !busca || h.tema.toLowerCase().includes(busca) || h.preview.toLowerCase().includes(busca));
       const list = document.getElementById('histList');
       const empty = document.getElementById('histEmpty');
-
-      if (hist.length === 0) {
-        list.innerHTML = '';
-        empty.classList.remove('hidden');
-        return;
-      }
-
+      if (!hist.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
       empty.classList.add('hidden');
+      const modos = { full: 'Completo', legendas: 'Legendas', trechos: 'Trechos', threads: 'Thread X', imgprompt: 'Img Prompt' };
       list.innerHTML = hist.map(h => {
         const d = new Date(h.data);
-        const dataStr = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        const modos = { full: 'Completo', legendas: 'Legendas', trechos: 'Trechos', threads: 'Thread X', imgprompt: 'Img Prompt' };
+        const ds = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         return `<div class="bg-placar-black border border-white/10 rounded-lg p-4 hover:border-placar-red/50 transition cursor-pointer" onclick="carregarDoHistorico(${h.id})">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs text-placar-red font-semibold">${modos[h.modo] || h.modo}</span>
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] text-placar-muted">${dataStr}</span>
-              <button onclick="event.stopPropagation(); removerDoHistorico(${h.id})" class="text-placar-muted hover:text-red-400 text-xs" title="Remover">&times;</button>
-            </div>
-          </div>
+          <div class="flex items-center justify-between mb-2"><span class="text-xs text-placar-red font-semibold">${modos[h.modo]||h.modo}</span><div class="flex items-center gap-2"><span class="text-[10px] text-placar-muted">${ds}</span><button onclick="event.stopPropagation();removerDoHistorico(${h.id})" class="text-placar-muted hover:text-red-400 text-xs">&times;</button></div></div>
           <p class="text-sm font-medium mb-1 truncate">${escapeHtml(h.tema)}</p>
           <p class="text-xs text-placar-muted line-clamp-2">${escapeHtml(h.preview)}...</p>
-          <p class="text-[10px] text-placar-muted mt-1">${h.provider} / ${h.model}</p>
-        </div>`;
+          <p class="text-[10px] text-placar-muted mt-1">${h.provider} / ${h.model}</p></div>`;
       }).join('');
     }
 
     function carregarDoHistorico(id) {
-      const hist = getHistorico();
-      const item = hist.find(h => h.id === id);
+      const item = getHistorico().find(h => h.id === id);
       if (!item) return;
       document.getElementById('tema').value = item.tema;
       document.getElementById('respostaIA').value = item.conteudo;
@@ -1050,13 +1039,8 @@ Regras importantes:
       fecharHistorico();
       toast('Materia carregada do historico!', 'info');
     }
-
-    function removerDoHistorico(id) {
-      const hist = getHistorico().filter(h => h.id !== id);
-      salvarHistoricoData(hist);
-      renderizarHistorico();
-      toast('Removido do historico.', 'info');
-    }
+    function removerDoHistorico(id) { salvarHistoricoData(getHistorico().filter(h => h.id !== id)); renderizarHistorico(); toast('Removido.', 'info'); }
+    function limparHistorico() { if (confirm('Limpar todo o historico?')) { salvarHistoricoData([]); renderizarHistorico(); toast('Historico limpo.', 'info'); } }
   </script>
 </body>
 </html>
