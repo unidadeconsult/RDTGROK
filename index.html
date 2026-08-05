@@ -181,14 +181,35 @@
     .onboard-tip::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid #C8102E; }
 
     /* Generation mode badges */
-    .mode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
-    @media (min-width: 640px) { .mode-grid { grid-template-columns: repeat(4, 1fr); } }
+    .mode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 8px; }
+    @media (min-width: 640px) { .mode-grid { grid-template-columns: repeat(5, 1fr); } }
     .mode-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 8px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
     .mode-card:hover { border-color: #C8102E; background: rgba(200,16,46,0.05); }
     .mode-card:active { transform: scale(0.97); }
     .mode-card .mode-icon { font-size: 20px; }
     .mode-card .mode-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
     .mode-card .mode-desc { font-size: 9px; color: var(--text-muted); }
+
+    /* Quality score */
+    .quality-bar { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+    .quality-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease, background 0.3s; }
+    .quality-score { display: flex; align-items: center; gap: 8px; }
+
+    /* Copy flash */
+    @keyframes copyFlash { 0%{background:rgba(34,197,94,0.2)} 100%{background:transparent} }
+    .copy-flash { animation: copyFlash 0.6s ease; }
+
+    /* Hashtag pills */
+    .hashtag-pill { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; cursor: pointer; transition: all 0.15s; border: 1px solid var(--border); }
+    .hashtag-pill:hover { background: #C8102E; color: white; border-color: #C8102E; }
+    .hashtag-pill:active { transform: scale(0.95); }
+
+    /* Import/export buttons */
+    .file-input-hidden { position: absolute; width: 0; height: 0; overflow: hidden; opacity: 0; }
+
+    /* Notification badge pulse */
+    @keyframes badgePulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+    .badge-pulse { animation: badgePulse 2s ease-in-out infinite; }
 
     @media print {
       .magazine-header, #loginGate, .drawer-overlay, .drawer-panel, .toast, .scroll-top-btn,
@@ -242,7 +263,9 @@
     <div class="sticky top-0 bg-placar-gray border-b border-white/10 px-5 py-4 flex items-center justify-between z-10">
       <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Historico</h3>
       <div class="flex items-center gap-2">
-        <button onclick="limparHistorico()" class="text-xs text-placar-muted hover:text-red-400 transition">Limpar tudo</button>
+        <button onclick="exportarHistorico()" class="text-xs text-placar-muted hover:text-green-400 transition" title="Exportar backup">&#8681; Backup</button>
+        <label class="text-xs text-placar-muted hover:text-blue-400 transition cursor-pointer" title="Importar backup">&#8679; Importar<input type="file" accept=".json" class="file-input-hidden" onchange="importarHistorico(event)" /></label>
+        <button onclick="limparHistorico()" class="text-xs text-placar-muted hover:text-red-400 transition">Limpar</button>
         <button onclick="fecharHistorico()" class="text-placar-muted hover:text-white text-lg leading-none" aria-label="Fechar">&times;</button>
       </div>
     </div>
@@ -257,6 +280,11 @@
           <option value="threads">Threads</option>
           <option value="linkedin">LinkedIn</option>
           <option value="reels">Reels</option>
+          <option value="youtube">YouTube</option>
+          <option value="newsletter">Newsletter</option>
+          <option value="podcast">Podcast</option>
+          <option value="hashtags">Hashtags</option>
+          <option value="seo">SEO</option>
         </select>
       </div>
       <div id="histList" class="space-y-3"></div>
@@ -470,6 +498,26 @@
               <span class="mode-label">Img Prompt</span>
               <span class="mode-desc">Prompts DALL-E</span>
             </div>
+            <div class="mode-card" onclick="gerarComIA('newsletter')" id="btnNewsletter">
+              <span class="mode-icon">&#9993;</span>
+              <span class="mode-label">Newsletter</span>
+              <span class="mode-desc">Email marketing</span>
+            </div>
+            <div class="mode-card" onclick="gerarComIA('podcast')" id="btnPodcast">
+              <span class="mode-icon">&#127897;</span>
+              <span class="mode-label">Podcast</span>
+              <span class="mode-desc">Roteiro episodio</span>
+            </div>
+            <div class="mode-card" onclick="gerarComIA('hashtags')" id="btnHashtags">
+              <span class="mode-icon">#</span>
+              <span class="mode-label">Hashtags</span>
+              <span class="mode-desc">Tags virais</span>
+            </div>
+            <div class="mode-card" onclick="gerarComIA('seo')" id="btnSeo">
+              <span class="mode-icon">&#128270;</span>
+              <span class="mode-label">SEO</span>
+              <span class="mode-desc">Meta tags + titulo</span>
+            </div>
           </div>
         </div>
 
@@ -580,12 +628,22 @@
           <button onclick="trocarTab('reels')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="reels" id="tabReels">Reels</button>
           <button onclick="trocarTab('youtube')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="youtube" id="tabYoutube">YouTube</button>
           <button onclick="trocarTab('imgprompt')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="imgprompt" id="tabImgPrompt">Imagem</button>
+          <button onclick="trocarTab('newsletter')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="newsletter" id="tabNewsletter">Newsletter</button>
+          <button onclick="trocarTab('podcast')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="podcast" id="tabPodcast">Podcast</button>
+          <button onclick="trocarTab('hashtags')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="hashtags" id="tabHashtags">Hashtags</button>
+          <button onclick="trocarTab('seo')" class="tab-btn font-display text-xs uppercase tracking-wider px-3 sm:px-4 py-3 whitespace-nowrap hidden" data-tab="seo" id="tabSeo">SEO</button>
           <div class="ml-auto flex items-center gap-1 py-2">
             <button onclick="compartilhar('whatsapp')" class="text-xs text-placar-muted hover:text-green-400 px-2 py-1 rounded transition" title="WhatsApp">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             </button>
             <button onclick="compartilhar('x')" class="text-xs text-placar-muted hover:text-white px-2 py-1 rounded transition" title="X / Twitter">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </button>
+            <button onclick="compartilhar('telegram')" class="text-xs text-placar-muted hover:text-blue-400 px-2 py-1 rounded transition" title="Telegram">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            </button>
+            <button onclick="compartilhar('email')" class="text-xs text-placar-muted hover:text-yellow-400 px-2 py-1 rounded transition" title="Email">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             </button>
           </div>
         </div>
@@ -664,13 +722,69 @@
           </div>
           <div id="imgPromptContent" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true"></div>
         </div>
+
+        <div id="panel-newsletter" class="tab-panel p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Newsletter / Email</h4>
+            <button onclick="copiarTexto('newsletterContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+          </div>
+          <div id="newsletterContent" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true"></div>
+        </div>
+
+        <div id="panel-podcast" class="tab-panel p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Roteiro Podcast</h4>
+            <button onclick="copiarTexto('podcastContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+          </div>
+          <div id="podcastContent" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true"></div>
+        </div>
+
+        <div id="panel-hashtags" class="tab-panel p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Hashtags Geradas</h4>
+            <button onclick="copiarTexto('hashtagsContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar todas</button>
+          </div>
+          <div id="hashtagsContent" class="text-sm leading-relaxed text-gray-200"></div>
+          <div id="hashtagPills" class="flex flex-wrap gap-2 mt-3"></div>
+        </div>
+
+        <div id="panel-seo" class="tab-panel p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">SEO / Meta Tags</h4>
+            <button onclick="copiarTexto('seoContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+          </div>
+          <div id="seoContent" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true"></div>
+        </div>
+
+        <!-- Content Quality Score -->
+        <div id="qualityPanel" class="hidden border-t border-white/10 p-4 sm:p-5">
+          <h4 class="font-display text-xs uppercase tracking-wider text-placar-muted mb-3">Qualidade do Conteudo</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <div class="flex justify-between text-[10px] text-placar-muted mb-1"><span>Legibilidade</span><span id="scoreReadability">-</span></div>
+              <div class="quality-bar"><div class="quality-fill" id="barReadability" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-placar-muted mb-1"><span>Engajamento</span><span id="scoreEngagement">-</span></div>
+              <div class="quality-bar"><div class="quality-fill" id="barEngagement" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-placar-muted mb-1"><span>SEO</span><span id="scoreSeo">-</span></div>
+              <div class="quality-bar"><div class="quality-fill" id="barSeo" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-placar-muted mb-1"><span>Geral</span><span id="scoreOverall">-</span></div>
+              <div class="quality-bar"><div class="quality-fill" id="barOverall" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <footer class="border-t border-white/10 pt-6 pb-10 text-center">
       <div class="inline-block bg-placar-red px-4 py-1 mb-3"><span class="font-display text-sm font-bold tracking-wider text-white">RDT</span></div>
       <p class="text-xs text-placar-muted">Futebol com alma de arquibancada</p>
-      <p class="text-[10px] text-placar-muted/50 mt-1">v4.0 &middot; Ctrl+Enter = Gerar &middot; Esc = Fechar</p>
+      <p class="text-[10px] text-placar-muted/50 mt-1">v5.0 &middot; Ctrl+Enter = Gerar &middot; Esc = Fechar</p>
     </footer>
   </main>
 
@@ -1105,6 +1219,10 @@ Regras:
       if (modo === 'reels') return `TEMA: ${tema}\n\n${ctx}Roteiro para Reels/TikTok sobre futebol no jeito RDT.\n\nFormato:\n=== ROTEIRO REELS ===\n\nHOOK (0-3s): [frase de impacto para prender]\n\nDESENVOLVIMENTO (3-30s):\n[pontos principais, frases curtas e energeticas]\n\nCTA (final): [chamada para acao]\n\nTEXTO NA TELA: [texto overlay sugerido]\n\nLEGENDA: [legenda com hashtags]\n\nAUDIO: [sugestao de audio/musica trending]`;
       if (modo === 'youtube') return `TEMA: ${tema}\n\n${ctx}Crie conteudo para YouTube sobre futebol no jeito RDT.\n\n=== YOUTUBE ===\n\nTITULO (max 60 chars, com gancho):\n[titulo]\n\nTHUMBNAIL TEXT:\n[texto curto e impactante para thumbnail]\n\nDESCRICAO:\n[descricao otimizada para SEO, 150-300 palavras, com timestamps ficticios, links e hashtags]\n\nTAGS:\n[10-15 tags separadas por virgula]`;
       if (modo === 'imgprompt') return `TEMA: ${tema}\n\n${ctx}3 prompts de imagem (DALL-E/Midjourney) para ilustrar.\n- Em ingles\n- Estilo editorial esportivo\n- SEM nomes reais\n\n=== PROMPTS DE IMAGEM ===\n1) [prompt]\n2) [prompt]\n3) [prompt]`;
+      if (modo === 'newsletter') return `TEMA: ${tema}\n\n${ctx}Crie uma newsletter/email sobre futebol no jeito RDT.\n\nFormato:\n=== NEWSLETTER ===\n\nASSUNTO: [linha de assunto do email, max 60 chars, com emoji]\n\nPREVIEW: [texto de preview, max 90 chars]\n\nCORPO:\n[saudacao]\n\n[conteudo principal - 3 a 5 blocos curtos]\n[cada bloco com titulo em negrito e 2-3 frases]\n\n[bloco de opiniao RDT]\n\n[CTA - chamada para acao]\n\n[despedida no jeito RDT]\n\nP.S.: [bonus ou provocacao final]`;
+      if (modo === 'podcast') return `TEMA: ${tema}\n\n${ctx}Crie um roteiro de episodio de podcast sobre futebol no jeito RDT.\n\nFormato:\n=== ROTEIRO PODCAST ===\n\nTITULO DO EPISODIO: [titulo chamativo]\nDURACAO ESTIMADA: [X minutos]\n\nABERTURA (1 min):\n[vinheta + apresentacao do tema + gancho]\n\nBLOCO 1 - CONTEXTO (3-5 min):\n[o que aconteceu, fatos, numeros]\n\nBLOCO 2 - ANALISE RDT (5-8 min):\n[opiniao, comparacoes, provocacoes]\n\nBLOCO 3 - INTERACAO (2-3 min):\n[perguntas do publico ficticio, respostas]\n\nFECHAMENTO (1 min):\n[resumo, CTA, proximos episodios]\n\nFRASES DE EFEITO:\n[3 frases marcantes para cortes/clipes]`;
+      if (modo === 'hashtags') return `TEMA: ${tema}\n\n${ctx}Gere hashtags para conteudo de futebol.\n\n=== HASHTAGS ===\n\nPRINCIPAIS (5 hashtags de alto volume):\n#...\n\nNICHO (5 hashtags de nicho esportivo):\n#...\n\nTRENDING (5 hashtags do momento):\n#...\n\nLONG TAIL (5 hashtags especificas):\n#...\n\nPARA CADA REDE:\nInstagram: [10 hashtags misturando volume + nicho]\nTwitter/X: [3-5 hashtags relevantes]\nLinkedIn: [3 hashtags profissionais]\nTikTok: [5 hashtags trending + nicho]`;
+      if (modo === 'seo') return `TEMA: ${tema}\n\n${ctx}Gere meta tags SEO e conteudo otimizado para busca.\n\n=== SEO ===\n\nTITLE TAG (max 60 chars):\n[titulo otimizado]\n\nMETA DESCRIPTION (max 155 chars):\n[descricao persuasiva]\n\nKEYWORDS:\n[10-15 palavras-chave separadas por virgula]\n\nURL SLUG:\n[slug-otimizado]\n\nH1:\n[titulo principal]\n\nH2s SUGERIDOS:\n[3-5 subtitulos]\n\nSCHEMA (JSON-LD Article):\n[dados estruturados simplificados]\n\nOPEN GRAPH:\nog:title: [titulo para redes]\nog:description: [descricao para compartilhamento]`;
       return '';
     }
 
@@ -1126,11 +1244,12 @@ Regras:
 
       try {
         let apiUrl = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : provider === 'deepseek' ? 'https://api.deepseek.com/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
-        const response = await fetch(apiUrl, {
+        const fetchOpts = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
           body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.75, max_tokens: 4000, stream: true })
-        });
+        };
+        const response = await fetchWithRetry(apiUrl, fetchOpts);
         if (!response.ok) { const err = await response.json().catch(()=>({})); throw new Error(err.error?.message || `Erro ${response.status}`); }
 
         let fullContent = '';
@@ -1159,6 +1278,7 @@ Regras:
         salvarNoHistorico(tema, modo, fullContent, provider, model);
         safeRemove('rdt_draft');
         document.getElementById('regenBar').classList.remove('hidden');
+        calcularQualidade(fullContent);
       } catch (err) { streamBox.classList.add('hidden'); esconderLoading(); toast('Erro: ' + err.message, 'error'); }
       finally { setModeCardsDisabled(false); }
     }
@@ -1172,6 +1292,10 @@ Regras:
       if (modo === 'linkedin') { processarSingle(texto, '=== POST LINKEDIN ===', 'linkedinContent', 'tabLinkedin', 'linkedin'); return; }
       if (modo === 'reels') { processarSingle(texto, '=== ROTEIRO REELS ===', 'reelsContent', 'tabReels', 'reels'); return; }
       if (modo === 'youtube') { processarSingle(texto, '=== YOUTUBE ===', 'youtubeContent', 'tabYoutube', 'youtube'); return; }
+      if (modo === 'newsletter') { processarSingle(texto, '=== NEWSLETTER ===', 'newsletterContent', 'tabNewsletter', 'newsletter'); return; }
+      if (modo === 'podcast') { processarSingle(texto, '=== ROTEIRO PODCAST ===', 'podcastContent', 'tabPodcast', 'podcast'); return; }
+      if (modo === 'hashtags') { processarHashtags(texto); return; }
+      if (modo === 'seo') { processarSingle(texto, '=== SEO ===', 'seoContent', 'tabSeo', 'seo'); return; }
 
       const materia = extrairSecao(texto, '=== MATERIA COMPLETA ===', '=== TRECHOS 300 ===') || extrairSecao(texto, 'MATERIA COMPLETA', 'TRECHOS') || texto;
       const trechosRaw = extrairSecao(texto, '=== TRECHOS 300 ===', '=== LEGENDAS INSTAGRAM ===') || extrairSecao(texto, 'TRECHOS 300', 'LEGENDAS');
@@ -1306,7 +1430,7 @@ Regras:
     }
 
     // ==================== COPY / SHARE / EXPORT ====================
-    function copiarTexto(id) { navigator.clipboard.writeText(document.getElementById(id).innerText || '').then(() => toast('Copiado!', 'success')); }
+    function copiarTexto(id) { const el = document.getElementById(id); navigator.clipboard.writeText(el?.innerText || '').then(() => { toast('Copiado!', 'success'); if (el) { el.classList.add('copy-flash'); setTimeout(() => el.classList.remove('copy-flash'), 600); } }); }
     function copiarString(str) { navigator.clipboard.writeText(str).then(() => toast('Copiado!', 'success')); }
     function copiarPrompt() { navigator.clipboard.writeText(document.getElementById('promptOutput').value).then(() => toast('Copiado!', 'success')); }
 
@@ -1314,7 +1438,9 @@ Regras:
       const sections = [
         ['MATERIA COMPLETA', 'materiaCompleta'], ['TRECHOS 300', 'trechos300'], ['LEGENDAS INSTAGRAM', 'legendasIG'],
         ['RESUMO FACEBOOK', 'resumoFB'], ['THREADS X', 'threadsContent'], ['POST LINKEDIN', 'linkedinContent'],
-        ['ROTEIRO REELS', 'reelsContent'], ['YOUTUBE', 'youtubeContent'], ['PROMPTS DE IMAGEM', 'imgPromptContent']
+        ['ROTEIRO REELS', 'reelsContent'], ['YOUTUBE', 'youtubeContent'], ['PROMPTS DE IMAGEM', 'imgPromptContent'],
+        ['NEWSLETTER', 'newsletterContent'], ['ROTEIRO PODCAST', 'podcastContent'], ['HASHTAGS', 'hashtagsContent'],
+        ['SEO', 'seoContent']
       ];
       let output = '';
       sections.forEach(([title, id]) => {
@@ -1329,7 +1455,9 @@ Regras:
       const sections = [
         ['MATERIA COMPLETA', 'materiaCompleta'], ['RESUMO FACEBOOK', 'resumoFB'], ['LEGENDAS INSTAGRAM', 'legendasIG'],
         ['THREADS X', 'threadsContent'], ['POST LINKEDIN', 'linkedinContent'], ['ROTEIRO REELS', 'reelsContent'],
-        ['YOUTUBE', 'youtubeContent'], ['PROMPTS DE IMAGEM', 'imgPromptContent']
+        ['YOUTUBE', 'youtubeContent'], ['PROMPTS DE IMAGEM', 'imgPromptContent'],
+        ['NEWSLETTER', 'newsletterContent'], ['ROTEIRO PODCAST', 'podcastContent'], ['HASHTAGS', 'hashtagsContent'],
+        ['SEO', 'seoContent']
       ];
       let output = 'RDT FUTEBOL - ' + tema.toUpperCase() + '\nGerado em: ' + new Date().toLocaleString('pt-BR') + '\n' + '='.repeat(50) + '\n\n';
       sections.forEach(([title, id]) => {
@@ -1354,7 +1482,9 @@ Regras:
       const sections = [
         ['Materia Completa', 'materiaCompleta'], ['Resumo Facebook', 'resumoFB'], ['Legendas Instagram', 'legendasIG'],
         ['Threads X', 'threadsContent'], ['Post LinkedIn', 'linkedinContent'], ['Roteiro Reels', 'reelsContent'],
-        ['YouTube', 'youtubeContent'], ['Prompts de Imagem', 'imgPromptContent']
+        ['YouTube', 'youtubeContent'], ['Prompts de Imagem', 'imgPromptContent'],
+        ['Newsletter', 'newsletterContent'], ['Roteiro Podcast', 'podcastContent'], ['Hashtags', 'hashtagsContent'],
+        ['SEO', 'seoContent']
       ];
       let md = `# RDT Futebol - ${tema}\n\n> Gerado em ${new Date().toLocaleString('pt-BR')}\n\n---\n\n`;
       sections.forEach(([title, id]) => {
@@ -1369,12 +1499,7 @@ Regras:
       toast('Exportado .md!', 'success');
     }
 
-    function compartilhar(plat) {
-      const texto = (document.getElementById('resumoFB').innerText || document.getElementById('materiaCompleta').innerText || '').substring(0, 500);
-      if (!texto) { toast('Gere primeiro.', 'warning'); return; }
-      if (plat === 'whatsapp') window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
-      else if (plat === 'x') window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(texto.substring(0, 270) + '...'), '_blank');
-    }
+    // compartilhar: see enhanced version below
 
     // ==================== HISTORY ====================
     function getHistorico() { try { return JSON.parse(safeGet('rdt_historico', '[]')); } catch(e) { return []; } }
@@ -1414,7 +1539,7 @@ Regras:
       const empty = document.getElementById('histEmpty');
       if (!hist.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
       empty.classList.add('hidden');
-      const modos = { full:'Completo', legendas:'Legendas', trechos:'Trechos', threads:'Thread X', imgprompt:'Img Prompt', linkedin:'LinkedIn', reels:'Reels', youtube:'YouTube' };
+      const modos = MODOS_LABEL;
       list.innerHTML = hist.map(h => {
         const d = new Date(h.data);
         const ds = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
@@ -1446,6 +1571,159 @@ Regras:
     }
     function removerDoHistorico(id) { salvarHistoricoData(getHistorico().filter(h => h.id !== id)); renderizarHistorico(); toast('Removido.', 'info'); }
     function limparHistorico() { if (confirm('Limpar todo o historico?')) { salvarHistoricoData([]); renderizarHistorico(); toast('Limpo.', 'info'); } }
+
+    // ==================== HASHTAG PROCESSOR ====================
+    function processarHashtags(texto) {
+      const raw = extrairSecao(texto, '=== HASHTAGS ===', null) || texto;
+      document.getElementById('hashtagsContent').textContent = raw.trim();
+      document.getElementById('tabHashtags').classList.remove('hidden');
+      const pills = document.getElementById('hashtagPills');
+      pills.innerHTML = '';
+      const tags = raw.match(/#[\wÀ-ɏ]+/g) || [];
+      const unique = [...new Set(tags)];
+      unique.forEach(tag => {
+        const span = document.createElement('span');
+        span.className = 'hashtag-pill';
+        span.textContent = tag;
+        span.onclick = () => { navigator.clipboard.writeText(tag).then(() => { span.classList.add('copy-flash'); toast(tag + ' copiada!', 'success'); }); };
+        pills.appendChild(span);
+      });
+      mostrarResultados('hashtags');
+    }
+
+    // ==================== CONTENT QUALITY SCORE ====================
+    function calcularQualidade(texto) {
+      if (!texto || texto.length < 50) return;
+      const palavras = texto.trim().split(/\s+/).filter(w => w.length > 0);
+      const frases = texto.split(/[.!?]+/).filter(f => f.trim().length > 5);
+      const paragrafos = texto.split(/\n\s*\n/).filter(p => p.trim().length > 10);
+
+      const avgWordsPerSentence = frases.length > 0 ? palavras.length / frases.length : 0;
+      let readScore = 0;
+      if (avgWordsPerSentence <= 20) readScore = 90;
+      else if (avgWordsPerSentence <= 25) readScore = 75;
+      else if (avgWordsPerSentence <= 30) readScore = 60;
+      else readScore = 40;
+      if (paragrafos.length >= 3) readScore = Math.min(100, readScore + 10);
+
+      const hasQuestion = /\?/.test(texto);
+      const hasEmoji = /[\u{1F300}-\u{1F9FF}]/u.test(texto);
+      const hasCTA = /coment|clique|siga|compartilh|inscreva|assina|curta|salve|manda|diga/i.test(texto);
+      const hasHook = frases.length > 0 && frases[0].trim().length < 80;
+      let engScore = 40;
+      if (hasQuestion) engScore += 15;
+      if (hasCTA) engScore += 20;
+      if (hasHook) engScore += 15;
+      if (hasEmoji) engScore += 5;
+      if (palavras.length > 150) engScore += 5;
+      engScore = Math.min(100, engScore);
+
+      const hasHashtags = /#\w+/.test(texto);
+      const optimalLength = palavras.length >= 300 && palavras.length <= 800;
+      const hasSubheadings = /\n[A-ZÀ-Ü]{2,}/.test(texto) || /#{2,}/.test(texto);
+      let seoScore = 30;
+      if (hasHashtags) seoScore += 15;
+      if (optimalLength) seoScore += 20;
+      if (hasSubheadings) seoScore += 15;
+      if (paragrafos.length >= 4) seoScore += 10;
+      if (palavras.length >= 100) seoScore += 10;
+      seoScore = Math.min(100, seoScore);
+
+      const overall = Math.round((readScore + engScore + seoScore) / 3);
+
+      setQualityBar('Readability', readScore);
+      setQualityBar('Engagement', engScore);
+      setQualityBar('Seo', seoScore);
+      setQualityBar('Overall', overall);
+      document.getElementById('qualityPanel').classList.remove('hidden');
+    }
+
+    function setQualityBar(name, score) {
+      const bar = document.getElementById('bar' + name);
+      const label = document.getElementById('score' + name);
+      if (!bar || !label) return;
+      bar.style.width = score + '%';
+      bar.style.background = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444';
+      label.textContent = score + '%';
+    }
+
+    // ==================== HISTORY EXPORT/IMPORT ====================
+    function exportarHistorico() {
+      const hist = getHistorico();
+      if (!hist.length) { toast('Historico vazio.', 'warning'); return; }
+      const data = { version: 'rdt-5.0', exported: new Date().toISOString(), items: hist };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'rdt-historico-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click(); URL.revokeObjectURL(a.href);
+      toast('Backup exportado!', 'success');
+    }
+
+    function importarHistorico(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          const items = data.items || data;
+          if (!Array.isArray(items)) throw new Error('Formato invalido');
+          const hist = getHistorico();
+          const existingIds = new Set(hist.map(h => h.id));
+          let added = 0;
+          items.forEach(item => {
+            if (item.id && item.tema && !existingIds.has(item.id)) { hist.push(item); added++; }
+          });
+          hist.sort((a, b) => b.id - a.id);
+          if (hist.length > 100) hist.length = 100;
+          salvarHistoricoData(hist);
+          renderizarHistorico();
+          toast(`${added} itens importados!`, 'success');
+        } catch(err) { toast('Arquivo invalido.', 'error'); }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // ==================== RETRY MECHANISM ====================
+    async function fetchWithRetry(url, options, maxRetries = 2) {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(url, options);
+          if (response.ok || response.status < 500) return response;
+          if (attempt < maxRetries) {
+            toast(`Tentativa ${attempt + 2}...`, 'info');
+            await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+          }
+        } catch(err) {
+          if (attempt === maxRetries) throw err;
+          toast(`Reconectando... (${attempt + 2}/${maxRetries + 1})`, 'info');
+          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+        }
+      }
+    }
+
+    // ==================== ENHANCED SHARING ====================
+    function compartilhar(plat) {
+      const texto = (document.getElementById('resumoFB').innerText || document.getElementById('materiaCompleta').innerText || '').substring(0, 500);
+      if (!texto) { toast('Gere primeiro.', 'warning'); return; }
+      const tema = document.getElementById('tema').value || 'Futebol';
+      if (plat === 'whatsapp') window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+      else if (plat === 'x') window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(texto.substring(0, 270) + '...'), '_blank');
+      else if (plat === 'telegram') window.open('https://t.me/share/url?url=&text=' + encodeURIComponent(texto), '_blank');
+      else if (plat === 'email') window.open('mailto:?subject=' + encodeURIComponent('RDT: ' + tema) + '&body=' + encodeURIComponent(texto), '_blank');
+      toast('Abrindo ' + plat + '...', 'info');
+    }
+
+    // ==================== ENHANCED COPY WITH FLASH ====================
+
+    // ==================== UPDATED HISTORY MODES ====================
+    const MODOS_LABEL = {
+      full:'Completo', legendas:'Legendas', trechos:'Trechos', threads:'Thread X',
+      imgprompt:'Img Prompt', linkedin:'LinkedIn', reels:'Reels', youtube:'YouTube',
+      newsletter:'Newsletter', podcast:'Podcast', hashtags:'Hashtags', seo:'SEO'
+    };
   </script>
 </body>
 </html>
