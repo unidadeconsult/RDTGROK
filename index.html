@@ -211,6 +211,37 @@
     @keyframes badgePulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
     .badge-pulse { animation: badgePulse 2s ease-in-out infinite; }
 
+    /* Keyboard shortcuts modal */
+    .shortcuts-modal { position: fixed; inset: 0; z-index: 400; background: var(--overlay); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .shortcuts-modal.open { opacity: 1; pointer-events: auto; }
+    .shortcuts-modal .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 460px; width: 90%; max-height: 80vh; overflow-y: auto; transform: scale(0.95); transition: transform 0.3s; }
+    .shortcuts-modal.open .modal-content { transform: scale(1); }
+    .shortcut-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .shortcut-row:last-child { border-bottom: none; }
+
+    /* Platform preview cards */
+    .platform-preview { border: 1px solid var(--border); border-radius: 12px; padding: 16px; max-width: 400px; }
+    .platform-preview .preview-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .platform-preview .preview-avatar { width: 32px; height: 32px; border-radius: 50%; background: #C8102E; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: white; }
+
+    /* Recent topics */
+    .recent-topic { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 9999px; font-size: 11px; cursor: pointer; transition: all 0.15s; border: 1px solid var(--border); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .recent-topic:hover { border-color: #C8102E; color: #C8102E; }
+
+    /* Tab transition */
+    .tab-panel { display: none; opacity: 0; transition: opacity 0.2s; }
+    .tab-panel.active { display: block; opacity: 1; }
+
+    /* Skip to content */
+    .skip-link { position: absolute; top: -40px; left: 0; background: #C8102E; color: white; padding: 8px 16px; z-index: 9999; transition: top 0.3s; }
+    .skip-link:focus { top: 0; }
+
+    /* Word count per platform */
+    .platform-limit { font-size: 10px; padding: 2px 8px; border-radius: 4px; }
+    .platform-limit.ok { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .platform-limit.warn { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .platform-limit.over { background: rgba(239,68,68,0.15); color: #ef4444; }
+
     @media print {
       .magazine-header, #loginGate, .drawer-overlay, .drawer-panel, .toast, .scroll-top-btn,
       button, .btn-primary, .btn-secondary, #loadingBox, #streamBox, .tab-btn,
@@ -225,6 +256,7 @@
   </style>
 </head>
 <body class="font-sans min-h-screen">
+  <a href="#mainContent" class="skip-link">Pular para conteudo</a>
 
   <div id="toastContainer" class="fixed top-20 right-4 z-[300] flex flex-col gap-2 pointer-events-none"></div>
 
@@ -303,6 +335,9 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
+        <button onclick="abrirShortcuts()" class="bg-black/30 hover:bg-black/50 p-2 rounded transition hidden sm:block" title="Atalhos (Ctrl+/)" aria-label="Atalhos de teclado">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        </button>
         <button onclick="toggleTheme()" id="themeToggle" class="bg-black/30 hover:bg-black/50 p-2 rounded transition" title="Alternar tema" aria-label="Alternar tema claro/escuro">
           <svg id="iconSun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
           <svg id="iconMoon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -327,7 +362,26 @@
     </div>
   </div>
 
-  <main class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-5 sm:space-y-6">
+  <!-- Keyboard shortcuts modal -->
+  <div id="shortcutsModal" class="shortcuts-modal" onclick="if(event.target===this)fecharShortcuts()">
+    <div class="modal-content">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display text-sm uppercase tracking-wider text-placar-red">Atalhos de Teclado</h3>
+        <button onclick="fecharShortcuts()" class="text-placar-muted hover:text-white text-lg">&times;</button>
+      </div>
+      <div class="shortcut-row"><span class="text-sm">Gerar tudo</span><kbd>Ctrl+Enter</kbd></div>
+      <div class="shortcut-row"><span class="text-sm">Fechar modal/drawer</span><kbd>Esc</kbd></div>
+      <div class="shortcut-row"><span class="text-sm">Atalhos</span><kbd>Ctrl+/</kbd></div>
+      <div class="shortcut-row"><span class="text-sm">Alternar tema</span><kbd>Ctrl+D</kbd></div>
+      <div class="shortcut-row"><span class="text-sm">Abrir historico</span><kbd>Ctrl+H</kbd></div>
+      <div class="shortcut-row"><span class="text-sm">Copiar tudo</span><kbd>Ctrl+Shift+C</kbd></div>
+      <div class="shortcut-row"><span class="text-sm">Limpar campos</span><kbd>Ctrl+Shift+X</kbd></div>
+      <div class="shortcut-row"><span class="text-sm">Foco no tema</span><kbd>Ctrl+K</kbd></div>
+      <p class="text-[10px] text-placar-muted mt-4 text-center">Mac: use Cmd no lugar de Ctrl</p>
+    </div>
+  </div>
+
+  <main id="mainContent" class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-5 sm:space-y-6">
 
     <!-- Intro -->
     <section class="border-l-4 border-placar-red bg-placar-card p-4 sm:p-5 animate-in">
@@ -423,6 +477,7 @@
         <div>
           <label for="tema" class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">Sobre o que vamos falar?</label>
           <input id="tema" type="text" placeholder="Ex: O 4-2-3-1 do Flamengo ta funcionando?" class="w-full bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition" />
+          <div id="recentTopics" class="flex flex-wrap gap-1.5 mt-2 hidden"></div>
         </div>
 
         <!-- Contexto -->
@@ -686,7 +741,10 @@
         <div id="panel-threads" class="tab-panel p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Threads X / Twitter</h4>
-            <button onclick="copiarTexto('threadsContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar tudo</button>
+            <div class="flex items-center gap-2">
+              <span class="platform-limit ok text-[10px]">280 chars/tweet</span>
+              <button onclick="copiarTexto('threadsContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar tudo</button>
+            </div>
           </div>
           <div id="threadsContent" class="space-y-3"></div>
         </div>
@@ -694,9 +752,12 @@
         <div id="panel-linkedin" class="tab-panel p-4 sm:p-5">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-display text-sm uppercase tracking-wider text-placar-red">Post LinkedIn</h4>
-            <button onclick="copiarTexto('linkedinContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+            <div class="flex items-center gap-2">
+              <span id="linkedinLimit" class="platform-limit ok text-[10px]">0/3000</span>
+              <button onclick="copiarTexto('linkedinContent')" class="text-xs btn-secondary px-3 py-1 rounded">Copiar</button>
+            </div>
           </div>
-          <div id="linkedinContent" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true"></div>
+          <div id="linkedinContent" class="editable-content text-sm leading-relaxed whitespace-pre-wrap text-gray-200" contenteditable="true" spellcheck="true" oninput="atualizarPlatformLimit('linkedinContent','linkedinLimit',3000)"></div>
         </div>
 
         <div id="panel-reels" class="tab-panel p-4 sm:p-5">
@@ -784,7 +845,7 @@
     <footer class="border-t border-white/10 pt-6 pb-10 text-center">
       <div class="inline-block bg-placar-red px-4 py-1 mb-3"><span class="font-display text-sm font-bold tracking-wider text-white">RDT</span></div>
       <p class="text-xs text-placar-muted">Futebol com alma de arquibancada</p>
-      <p class="text-[10px] text-placar-muted/50 mt-1">v5.0 &middot; Ctrl+Enter = Gerar &middot; Esc = Fechar</p>
+      <p class="text-[10px] text-placar-muted/50 mt-1">v6.0 &middot; Ctrl+Enter = Gerar &middot; Ctrl+/ = Atalhos</p>
     </footer>
   </main>
 
@@ -1057,6 +1118,7 @@ Regras:
       iniciarAutoSave();
       iniciarScrollTop();
       verificarOnboarding();
+      renderRecentTopics();
     });
 
     function atualizarModelos() {
@@ -1128,12 +1190,52 @@ Regras:
 
     // ==================== KEYBOARD SHORTCUTS ====================
     document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); gerarComIA('full'); }
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.key === 'Enter') { e.preventDefault(); gerarComIA('full'); }
+      if (mod && e.key === '/') { e.preventDefault(); abrirShortcuts(); }
+      if (mod && e.key === 'd') { e.preventDefault(); toggleTheme(); }
+      if (mod && e.key === 'h') { e.preventDefault(); abrirHistorico(); }
+      if (mod && e.shiftKey && e.key === 'C') { e.preventDefault(); copiarTudoFormatado(); }
+      if (mod && e.shiftKey && e.key === 'X') { e.preventDefault(); limparTudo(); }
+      if (mod && e.key === 'k') { e.preventDefault(); document.getElementById('tema').focus(); }
       if (e.key === 'Escape') {
-        if (document.getElementById('fullscreenModal').classList.contains('open')) fecharFullscreen();
+        if (document.getElementById('shortcutsModal').classList.contains('open')) fecharShortcuts();
+        else if (document.getElementById('fullscreenModal').classList.contains('open')) fecharFullscreen();
         else if (document.getElementById('drawerPanel').classList.contains('open')) fecharHistorico();
       }
     });
+
+    // ==================== SHORTCUTS MODAL ====================
+    function abrirShortcuts() { document.getElementById('shortcutsModal').classList.add('open'); }
+    function fecharShortcuts() { document.getElementById('shortcutsModal').classList.remove('open'); }
+
+    // ==================== RECENT TOPICS ====================
+    function getRecentTopics() {
+      try { return JSON.parse(safeGet('rdt_recent_topics', '[]')); } catch(e) { return []; }
+    }
+    function addRecentTopic(tema) {
+      if (!tema || tema === 'futebol brasileiro em geral') return;
+      let topics = getRecentTopics().filter(t => t !== tema);
+      topics.unshift(tema);
+      if (topics.length > 8) topics.length = 8;
+      safeSet('rdt_recent_topics', JSON.stringify(topics));
+      renderRecentTopics();
+    }
+    function renderRecentTopics() {
+      const container = document.getElementById('recentTopics');
+      const topics = getRecentTopics();
+      if (!topics.length) { container.classList.add('hidden'); return; }
+      container.classList.remove('hidden');
+      container.innerHTML = '<span class="text-[10px] text-placar-muted uppercase tracking-wider">Recentes:</span>';
+      topics.slice(0, 5).forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'recent-topic';
+        span.textContent = t.length > 35 ? t.substring(0, 35) + '...' : t;
+        span.title = t;
+        span.onclick = () => { document.getElementById('tema').value = t; toast('Tema aplicado!', 'info'); };
+        container.appendChild(span);
+      });
+    }
 
     // ==================== SCROLL TO TOP ====================
     function iniciarScrollTop() {
@@ -1279,6 +1381,7 @@ Regras:
         safeRemove('rdt_draft');
         document.getElementById('regenBar').classList.remove('hidden');
         calcularQualidade(fullContent);
+        addRecentTopic(tema);
       } catch (err) { streamBox.classList.add('hidden'); esconderLoading(); toast('Erro: ' + err.message, 'error'); }
       finally { setModeCardsDisabled(false); }
     }
@@ -1714,6 +1817,16 @@ Regras:
       else if (plat === 'telegram') window.open('https://t.me/share/url?url=&text=' + encodeURIComponent(texto), '_blank');
       else if (plat === 'email') window.open('mailto:?subject=' + encodeURIComponent('RDT: ' + tema) + '&body=' + encodeURIComponent(texto), '_blank');
       toast('Abrindo ' + plat + '...', 'info');
+    }
+
+    // ==================== PLATFORM LIMITS ====================
+    function atualizarPlatformLimit(contentId, limitId, max) {
+      const el = document.getElementById(contentId);
+      const label = document.getElementById(limitId);
+      if (!el || !label) return;
+      const len = (el.innerText || '').length;
+      label.textContent = `${len}/${max}`;
+      label.className = 'platform-limit text-[10px] ' + (len <= max * 0.8 ? 'ok' : len <= max ? 'warn' : 'over');
     }
 
     // ==================== ENHANCED COPY WITH FLASH ====================
