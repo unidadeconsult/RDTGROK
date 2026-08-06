@@ -469,7 +469,7 @@
           <label for="urlNoticia" class="block text-xs font-semibold uppercase tracking-wider text-placar-muted mb-1.5">URL da noticia (opcional)</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <input id="urlNoticia" type="url" placeholder="https://ge.globo.com/... ou qualquer link" class="flex-1 bg-placar-black border border-white/15 rounded px-4 py-3 text-sm focus:outline-none focus:border-placar-red transition" />
-            <button id="btnUrl" onclick="gerarPorUrl()" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm whitespace-nowrap">Ler URL e Gerar</button>
+            <button id="btnUrl" onclick="gerarPorUrl()" class="btn-secondary font-medium px-4 py-2.5 rounded text-sm whitespace-nowrap">Ler URL</button>
           </div>
         </div>
 
@@ -1303,9 +1303,7 @@ Regras:
       const url = document.getElementById('urlNoticia').value.trim();
       if (!url) { toast('Cole a URL primeiro.', 'warning'); return; }
       if (!url.startsWith('http')) { toast('URL invalida.', 'warning'); return; }
-      const provider = document.getElementById('provider').value;
-      if (!getKeyForProvider(provider)) { toast('Salve sua API Key.', 'warning'); return; }
-      setModeCardsDisabled(true); mostrarLoading('Lendo a noticia...');
+      mostrarLoading('Lendo a noticia...');
       try {
         const resp = await fetch('https://r.jina.ai/' + url, { headers: { 'Accept': 'text/plain' } });
         if (!resp.ok) throw new Error('Nao consegui ler.');
@@ -1314,10 +1312,9 @@ Regras:
         document.getElementById('contexto').value = txt;
         atualizarCharCount('contexto','charCountContexto',12000);
         if (!document.getElementById('tema').value.trim()) document.getElementById('tema').value = 'Analise da noticia';
-        toast('Noticia lida!', 'info');
-        await gerarComIA('full');
-      } catch (err) { esconderLoading(); toast('Erro: ' + err.message, 'error'); }
-      finally { setModeCardsDisabled(false); }
+        esconderLoading();
+        toast('Noticia lida! Agora escolha o modo de geracao.', 'success');
+      } catch (err) { esconderLoading(); toast('Erro ao ler URL: ' + err.message, 'error'); }
     }
 
     function buildUserPrompt(modo, tema, contexto) {
@@ -1341,6 +1338,22 @@ Regras:
       const provider = document.getElementById('provider').value;
       const key = getKeyForProvider(provider);
       if (!key) { toast('Salve sua API Key.', 'warning'); return; }
+
+      const urlField = document.getElementById('urlNoticia').value.trim();
+      if (urlField && urlField.startsWith('http') && !getContexto()) {
+        mostrarLoading('Lendo a noticia...');
+        try {
+          const resp = await fetch('https://r.jina.ai/' + urlField, { headers: { 'Accept': 'text/plain' } });
+          if (!resp.ok) throw new Error('Nao consegui ler a URL.');
+          let txt = await resp.text();
+          if (txt.length > 12000) txt = txt.substring(0, 12000) + '\n\n[...]';
+          document.getElementById('contexto').value = txt;
+          atualizarCharCount('contexto','charCountContexto',12000);
+          if (!document.getElementById('tema').value.trim()) document.getElementById('tema').value = 'Analise da noticia';
+          toast('Noticia lida!', 'info');
+        } catch (err) { esconderLoading(); toast('Erro ao ler URL: ' + err.message, 'error'); return; }
+      }
+
       const tema = getTema(), contexto = getContexto();
       const model = document.getElementById('model').value;
       const systemPrompt = DNA_RDT + (TONE_MODIFIERS[tomSelecionado] || '') + (LENGTH_MODIFIERS[tamanhoSelecionado] || '');
