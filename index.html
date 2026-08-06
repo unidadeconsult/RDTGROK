@@ -980,11 +980,15 @@ JEITO RDT (DNA):
 - Explica o contexto, apresenta diferentes lados, separa fatos de rumores.
 - Tom de resenha entre amigos que realmente entendem e amam futebol.
 
-Regras:
+Regras OBRIGATORIAS:
+- Escreva em portugues brasileiro CORRETO e COMPLETO. Nao corte palavras, nao junte frases sem pontuacao.
+- Use pontuacao correta: pontos finais, virgulas, acentos. Revise antes de entregar.
+- Nomes proprios COMPLETOS e corretos (ex: "Trabzonspor", nao "Trabspor"; "Jamie Carragher", nao "Jamieagher").
 - Nunca invente fatos. Se for opiniao, deixe claro.
-- Portugues brasileiro natural. Frases curtas e ritmadas.
+- Frases curtas e ritmadas, mas SEMPRE completas e bem escritas.
 - Pode usar girias de torcida com moderacao.
-- Termine com pergunta ou provocacao que gera comentario.`;
+- Termine com pergunta ou provocacao que gera comentario.
+- NUNCA responda com texto generico pedindo mais informacoes. USE o contexto fornecido e gere o conteudo solicitado.`;
 
     const TONE_MODIFIERS = {
       equilibrado: '',
@@ -1077,12 +1081,13 @@ Regras:
         { id: 'gemma2-9b-it', name: 'Gemma 2 9B' }
       ],
       deepseek: [
-        { id: 'deepseek-chat', name: 'DeepSeek Chat (recomendado)' },
-        { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner' }
+        { id: 'deepseek-chat', name: 'DeepSeek V3 (recomendado)' },
+        { id: 'deepseek-reasoner', name: 'DeepSeek R1 (mais profundo)' }
       ],
       openai: [
+        { id: 'gpt-4o', name: 'GPT-4o (melhor qualidade)' },
         { id: 'gpt-4o-mini', name: 'GPT-4o Mini (rapido e barato)' },
-        { id: 'gpt-4o', name: 'GPT-4o' },
+        { id: 'gpt-4.1', name: 'GPT-4.1 (mais recente)' },
         { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini' }
       ]
     };
@@ -1369,7 +1374,7 @@ Regras:
       try {
         let apiUrl = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : provider === 'deepseek' ? 'https://api.deepseek.com/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
         const providerNames = { groq: 'Groq', deepseek: 'DeepSeek', openai: 'OpenAI' };
-        const requestBody = { model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.75, max_tokens: 4000, stream: true };
+        const requestBody = { model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.6, max_tokens: 4096, stream: true };
 
         let fetchUrl, fetchOpts;
         const useProxy = provider !== 'groq';
@@ -1401,10 +1406,14 @@ Regras:
         let fullContent = '';
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        let sseBuffer = '';
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          for (const line of decoder.decode(value, { stream: true }).split('\n')) {
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split('\n');
+          sseBuffer = lines.pop();
+          for (const line of lines) {
             const trimmed = line.trim();
             if (!trimmed.startsWith('data: ') || trimmed === 'data: [DONE]') continue;
             try {
