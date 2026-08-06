@@ -1155,10 +1155,19 @@ Regras:
       feedback.textContent = 'Testando...'; feedback.className = 'text-[11px] mt-1.5 text-blue-400'; feedback.classList.remove('hidden');
       try {
         let apiUrl = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : provider === 'deepseek' ? 'https://api.deepseek.com/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
-        const r = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }, body: JSON.stringify({ model: document.getElementById('model').value, messages: [{ role: 'user', content: 'OK' }], max_tokens: 5 }) });
+        const testBody = { model: document.getElementById('model').value, messages: [{ role: 'user', content: 'OK' }], max_tokens: 5 };
+        let fetchUrl, fetchOpts;
+        if (provider !== 'groq') {
+          fetchUrl = '/api/generate';
+          fetchOpts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apiUrl, apiKey: key, body: testBody }) };
+        } else {
+          fetchUrl = apiUrl;
+          fetchOpts = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }, body: JSON.stringify(testBody) };
+        }
+        const r = await fetch(fetchUrl, fetchOpts);
         if (r.ok) { feedback.textContent = 'Conexao OK!'; feedback.className = 'text-[11px] mt-1.5 text-green-400'; toast('Conexao OK!', 'success'); }
         else { const err = await r.json().catch(()=>({})); feedback.textContent = `Erro ${r.status}: ${err.error?.message||'Chave invalida.'}`; feedback.className = 'text-[11px] mt-1.5 text-red-400'; toast('Falha.', 'error'); }
-      } catch (err) { feedback.textContent = 'Erro: ' + err.message; feedback.className = 'text-[11px] mt-1.5 text-red-400'; }
+      } catch (err) { feedback.textContent = 'Erro de rede. Verifique sua conexao.'; feedback.className = 'text-[11px] mt-1.5 text-red-400'; toast('Erro de conexao.', 'error'); }
       icon.classList.remove('spin');
     }
 
@@ -1347,12 +1356,26 @@ Regras:
       try {
         let apiUrl = provider === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : provider === 'deepseek' ? 'https://api.deepseek.com/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
         const providerNames = { groq: 'Groq', deepseek: 'DeepSeek', openai: 'OpenAI' };
-        const fetchOpts = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-          body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.75, max_tokens: 4000, stream: true })
-        };
-        const response = await fetchWithRetry(apiUrl, fetchOpts);
+        const requestBody = { model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.75, max_tokens: 4000, stream: true };
+
+        let fetchUrl, fetchOpts;
+        const useProxy = provider !== 'groq';
+        if (useProxy) {
+          fetchUrl = '/api/generate';
+          fetchOpts = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ apiUrl, apiKey: key, body: requestBody })
+          };
+        } else {
+          fetchUrl = apiUrl;
+          fetchOpts = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+            body: JSON.stringify(requestBody)
+          };
+        }
+        const response = await fetchWithRetry(fetchUrl, fetchOpts);
         if (!response.ok) {
           const err = await response.json().catch(()=>({}));
           const errMsg = err.error?.message || `Erro ${response.status}`;
