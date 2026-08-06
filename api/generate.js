@@ -1,30 +1,38 @@
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export const config = { runtime: 'edge' };
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  const { apiUrl, apiKey, body } = req.body;
-
-  if (!apiUrl || !apiKey || !body) {
-    return res.status(400).json({ error: 'Missing apiUrl, apiKey, or body' });
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' }
+    });
   }
 
-  const allowedHosts = [
-    'api.groq.com',
-    'api.deepseek.com',
-    'api.openai.com'
-  ];
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
+  }
 
+  let data;
+  try {
+    data = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  }
+
+  const { apiUrl, apiKey, body } = data;
+
+  if (!apiUrl || !apiKey || !body) {
+    return new Response(JSON.stringify({ error: 'Missing apiUrl, apiKey, or body' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  }
+
+  const allowedHosts = ['api.groq.com', 'api.deepseek.com', 'api.openai.com'];
   try {
     const url = new URL(apiUrl);
     if (!allowedHosts.includes(url.hostname)) {
-      return res.status(403).json({ error: 'Host not allowed' });
+      return new Response(JSON.stringify({ error: 'Host not allowed' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
     }
   } catch {
-    return res.status(400).json({ error: 'Invalid URL' });
+    return new Response(JSON.stringify({ error: 'Invalid URL' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
   try {
@@ -37,32 +45,26 @@ export default async function handler(req, res) {
       body: JSON.stringify(body)
     });
 
-    const contentType = response.headers.get('content-type') || '';
-
-    if (contentType.includes('text/event-stream') || body.stream) {
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          res.write(chunk);
+    if (body.stream && response.ok) {
+      return new Response(response.body, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Access-Control-Allow-Origin': '*'
         }
-      } catch (e) {
-        // Stream interrupted
-      }
-      return res.end();
+      });
     }
 
-    const data = await response.json();
-    return res.status(response.status).json(data);
+    const responseData = await response.text();
+    return new Response(responseData, {
+      status: response.status,
+      headers: {
+        'Content-Type': response.headers.get('content-type') || 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
   } catch (err) {
-    return res.status(502).json({ error: err.message || 'Proxy error' });
+    return new Response(JSON.stringify({ error: err.message || 'Proxy error' }), { status: 502, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
   }
 }
