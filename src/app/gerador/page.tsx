@@ -5,8 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Link as LinkIcon, Sparkles, Copy, Check, RotateCcw,
   Loader2, AlertCircle, MessageCircle, AtSign, Camera,
-  Hash, ChevronDown, Send,
+  Hash, ChevronDown, Send, FileText,
 } from 'lucide-react';
+import { useStore } from '@/lib/store';
+
+type InputMode = 'url' | 'pauta';
 
 const PLATFORMS = [
   { id: 'twitter', label: 'Twitter / X', icon: AtSign, maxChars: 280 },
@@ -30,7 +33,11 @@ interface GeneratedPost {
 }
 
 export default function GeradorPage() {
+  const { pautas } = useStore();
+  const [inputMode, setInputMode] = useState<InputMode>('url');
   const [url, setUrl] = useState('');
+  const [selectedPautaId, setSelectedPautaId] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Set<string>>(new Set(['twitter', 'instagram']));
   const [selectedTone, setSelectedTone] = useState('informativo');
   const [customInstructions, setCustomInstructions] = useState('');
@@ -42,6 +49,8 @@ export default function GeradorPage() {
   const [extractedContent, setExtractedContent] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const selectedPauta = pautas.find(p => p.id === selectedPautaId);
 
   function togglePlatform(id: string) {
     setSelectedPlatforms(prev => {
@@ -56,9 +65,18 @@ export default function GeradorPage() {
   }
 
   async function handleGenerate() {
-    if (!url.trim()) {
-      setError('Cole uma URL para comecar.');
-      return;
+    let content = '';
+
+    if (inputMode === 'url') {
+      if (!url.trim()) {
+        setError('Cole uma URL para comecar.');
+        return;
+      }
+    } else {
+      if (!selectedPauta) {
+        setError('Selecione uma pauta para gerar posts.');
+        return;
+      }
     }
 
     const apiKey = localStorage.getItem('rdt-api-key');
@@ -71,27 +89,35 @@ export default function GeradorPage() {
     setPosts([]);
     setExtractedContent('');
 
-    setExtracting(true);
-    let content = '';
-    try {
-      const extractRes = await fetch('/api/extract', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url.trim() }),
-      });
-      const extractData = await extractRes.json();
-      if (!extractRes.ok) {
-        throw new Error(extractData.error || 'Falha ao extrair conteudo da URL');
+    if (inputMode === 'url') {
+      setExtracting(true);
+      try {
+        const extractRes = await fetch('/api/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url.trim() }),
+        });
+        const extractData = await extractRes.json();
+        if (!extractRes.ok) {
+          throw new Error(extractData.error || 'Falha ao extrair conteudo da URL');
+        }
+        content = extractData.content;
+        setExtractedContent(content.slice(0, 500) + (content.length > 500 ? '...' : ''));
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Erro ao extrair URL';
+        setError(msg);
+        setExtracting(false);
+        return;
       }
-      content = extractData.content;
-      setExtractedContent(content.slice(0, 500) + (content.length > 500 ? '...' : ''));
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Erro ao extrair URL';
-      setError(msg);
       setExtracting(false);
-      return;
+    } else {
+      const p = selectedPauta!;
+      const angulosText = p.angulos.length > 0
+        ? `\nAngulos:\n${p.angulos.map(a => `- ${a.titulo}: ${a.resumo}`).join('\n')}`
+        : '';
+      content = `Titulo: ${p.titulo}\nDescricao: ${p.descricao}\nTags: ${p.tags.join(', ')}${p.clube ? `\nClube: ${p.clube}` : ''}${p.competicao ? `\nCompeticao: ${p.competicao}` : ''}${angulosText}`;
+      setExtractedContent(`Pauta: ${p.titulo}`);
     }
-    setExtracting(false);
 
     setLoading(true);
     try {
@@ -207,49 +233,150 @@ ${content.slice(0, 4000)}`;
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="font-display text-3xl lg:text-4xl tracking-wider gradient-text">GERADOR DE CONTEUDO</h1>
-        <p className="text-text-muted text-sm mt-1">Cole a URL, gere posts prontos para redes sociais.</p>
+        <p className="text-text-muted text-sm mt-1">Cole uma URL ou selecione uma pauta para gerar posts prontos.</p>
       </div>
 
       <div className="bg-surface border border-purple/20 rounded-lg p-5 lg:p-6 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-[2px] gradient-bg" />
 
         <div className="space-y-4">
-          <div>
-            <label className="font-ui text-[9px] font-semibold tracking-[1.5px] uppercase text-text-muted mb-1.5 block">
-              URL da Noticia ou Conteudo
-            </label>
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <LinkIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                <input
-                  ref={inputRef}
-                  value={url}
-                  onChange={e => setUrl(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleGenerate()}
-                  placeholder="https://..."
-                  className="w-full bg-bg-primary border border-border-strong rounded-md pl-9 pr-3 py-3 text-sm text-text-primary outline-none focus:border-purple focus:shadow-[0_0_0_3px_rgba(139,0,255,0.15)] transition-all placeholder:text-text-muted"
-                  autoFocus
-                />
-              </div>
-              <button
-                onClick={handleGenerate}
-                disabled={loading || extracting}
-                className={`flex items-center gap-2 px-6 py-3 rounded-md font-ui text-[10px] font-semibold tracking-wider uppercase transition-all whitespace-nowrap ${
-                  loading || extracting
-                    ? 'bg-surface border border-border text-text-muted cursor-wait'
-                    : 'gradient-bg text-white hover:shadow-lg hover:shadow-purple/20'
-                }`}
-              >
-                {extracting ? (
-                  <><Loader2 size={14} className="animate-spin" /> Extraindo...</>
-                ) : loading ? (
-                  <><Loader2 size={14} className="animate-spin" /> Gerando...</>
-                ) : (
-                  <><Sparkles size={14} /> Gerar Posts</>
-                )}
-              </button>
-            </div>
+          {/* Mode Toggle */}
+          <div className="flex gap-1 bg-bg-primary rounded-md p-1 w-fit">
+            <button
+              onClick={() => { setInputMode('url'); setError(''); }}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded font-ui text-[10px] font-semibold tracking-wider uppercase transition-all ${
+                inputMode === 'url'
+                  ? 'gradient-bg text-white'
+                  : 'text-text-muted hover:text-text-primary'
+              }`}
+            >
+              <LinkIcon size={12} /> URL
+            </button>
+            <button
+              onClick={() => { setInputMode('pauta'); setError(''); }}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded font-ui text-[10px] font-semibold tracking-wider uppercase transition-all ${
+                inputMode === 'pauta'
+                  ? 'gradient-bg text-white'
+                  : 'text-text-muted hover:text-text-primary'
+              }`}
+            >
+              <FileText size={12} /> Pauta
+            </button>
           </div>
+
+          {/* Input */}
+          <AnimatePresence mode="wait">
+            {inputMode === 'url' ? (
+              <motion.div key="url-input" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+                <label className="font-ui text-[9px] font-semibold tracking-[1.5px] uppercase text-text-muted mb-1.5 block">
+                  URL da Noticia ou Conteudo
+                </label>
+                <div className="flex gap-3">
+                  <div className="relative flex-1">
+                    <LinkIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                    <input
+                      ref={inputRef}
+                      value={url}
+                      onChange={e => setUrl(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleGenerate()}
+                      placeholder="https://..."
+                      className="w-full bg-bg-primary border border-border-strong rounded-md pl-9 pr-3 py-3 text-sm text-text-primary outline-none focus:border-purple focus:shadow-[0_0_0_3px_rgba(139,0,255,0.15)] transition-all placeholder:text-text-muted"
+                      autoFocus
+                    />
+                  </div>
+                  <button
+                    onClick={handleGenerate}
+                    disabled={loading || extracting}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-md font-ui text-[10px] font-semibold tracking-wider uppercase transition-all whitespace-nowrap ${
+                      loading || extracting
+                        ? 'bg-surface border border-border text-text-muted cursor-wait'
+                        : 'gradient-bg text-white hover:shadow-lg hover:shadow-purple/20'
+                    }`}
+                  >
+                    {extracting ? (
+                      <><Loader2 size={14} className="animate-spin" /> Extraindo...</>
+                    ) : loading ? (
+                      <><Loader2 size={14} className="animate-spin" /> Gerando...</>
+                    ) : (
+                      <><Sparkles size={14} /> Gerar Posts</>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div key="pauta-input" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+                <label className="font-ui text-[9px] font-semibold tracking-[1.5px] uppercase text-text-muted mb-1.5 block">
+                  Selecionar Pauta
+                </label>
+                <div className="relative">
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="w-full flex items-center justify-between bg-bg-primary border border-border-strong rounded-md px-4 py-3 text-left text-sm text-text-primary hover:border-purple/50 transition-all"
+                  >
+                    <span className={selectedPauta ? 'text-text-primary' : 'text-text-muted'}>
+                      {selectedPauta ? selectedPauta.titulo : 'Escolha uma pauta...'}
+                    </span>
+                    <ChevronDown size={16} className={`text-text-muted transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  <AnimatePresence>
+                    {dropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute z-20 w-full mt-1 bg-surface border border-border-strong rounded-md shadow-xl max-h-60 overflow-y-auto"
+                      >
+                        {pautas.length === 0 ? (
+                          <div className="px-4 py-3 text-sm text-text-muted">Nenhuma pauta disponivel</div>
+                        ) : (
+                          pautas.map(p => (
+                            <button
+                              key={p.id}
+                              onClick={() => { setSelectedPautaId(p.id); setDropdownOpen(false); }}
+                              className={`w-full text-left px-4 py-2.5 text-sm hover:bg-purple/10 transition-colors border-b border-border/30 last:border-b-0 ${
+                                p.id === selectedPautaId ? 'text-purple bg-purple/5' : 'text-text-primary'
+                              }`}
+                            >
+                              <div className="font-medium">{p.titulo}</div>
+                              <div className="text-[10px] text-text-muted mt-0.5 flex items-center gap-2">
+                                <span className="uppercase">{p.status}</span>
+                                {p.tags.slice(0, 3).map(tag => (
+                                  <span key={tag}>#{tag}</span>
+                                ))}
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                {selectedPauta && (
+                  <div className="mt-3 flex gap-3">
+                    <div className="flex-1 p-3 bg-bg-primary rounded-md border border-border">
+                      <p className="text-sm text-text-secondary">{selectedPauta.descricao.slice(0, 200)}{selectedPauta.descricao.length > 200 ? '...' : ''}</p>
+                    </div>
+                    <button
+                      onClick={handleGenerate}
+                      disabled={loading}
+                      className={`flex items-center gap-2 px-6 rounded-md font-ui text-[10px] font-semibold tracking-wider uppercase transition-all whitespace-nowrap ${
+                        loading
+                          ? 'bg-surface border border-border text-text-muted cursor-wait'
+                          : 'gradient-bg text-white hover:shadow-lg hover:shadow-purple/20'
+                      }`}
+                    >
+                      {loading ? (
+                        <><Loader2 size={14} className="animate-spin" /> Gerando...</>
+                      ) : (
+                        <><Sparkles size={14} /> Gerar Posts</>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div>
             <label className="font-ui text-[9px] font-semibold tracking-[1.5px] uppercase text-text-muted mb-2 block">

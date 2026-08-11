@@ -15,6 +15,9 @@ import {
   Layers,
   Search,
   Brain,
+  Loader2,
+  AlertCircle,
+  Zap,
 } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import type { Angulo, AnguloDeTipo } from '@/lib/types'
@@ -112,6 +115,8 @@ export default function SalaCriacaoPage() {
   const [showNewAngulo, setShowNewAngulo] = useState(false)
   const [newAngulo, setNewAngulo] = useState(EMPTY_ANGULO_FORM)
   const [showMotivational, setShowMotivational] = useState(false)
+  const [suggestingAngulos, setSuggestingAngulos] = useState(false)
+  const [suggestError, setSuggestError] = useState('')
 
   const selectedPauta = useMemo(
     () => pautas.find((p) => p.id === selectedPautaId) ?? null,
@@ -173,6 +178,96 @@ export default function SalaCriacaoPage() {
   function handleDeleteAngulo(anguloId: string) {
     if (!selectedPautaId) return
     deleteAngulo(selectedPautaId, anguloId)
+  }
+
+  async function handleSugerirAngulos() {
+    if (!selectedPauta || !selectedPautaId) return
+    const apiKey = localStorage.getItem('rdt-api-key')
+    if (!apiKey) {
+      setSuggestError('Configure sua API Key em Configuracoes.')
+      return
+    }
+    setSuggestError('')
+    setSuggestingAngulos(true)
+    try {
+      const apiUrl = localStorage.getItem('rdt-api-url') || 'https://api.openai.com/v1/chat/completions'
+      const existingAngulos = selectedPauta.angulos.length > 0
+        ? `\nAngulos ja existentes (NAO repita):\n${selectedPauta.angulos.map(a => `- ${a.tipo}: ${a.titulo}`).join('\n')}`
+        : ''
+
+      const systemPrompt = `Voce e um editor de conteudo esportivo criativo. Sua funcao e sugerir angulos editoriais unicos para pautas de futebol.
+
+Os tipos de angulo disponiveis sao: jornalistico, analitico, tatico, provocador, emocional, historico, humor, torcedor, contraponto, curiosidade, personagem, dados, pergunta, comparacao, storytelling.
+
+Responda APENAS com um JSON valido no formato:
+[{"tipo": "tipo_do_angulo", "titulo": "titulo curto", "resumo": "explicacao em 1-2 frases", "porqueFunciona": "razao curta", "formatos": ["formato1", "formato2"], "plataformas": ["plataforma1"]}]
+
+Gere entre 5 e 8 angulos criativos e variados. Nao repita tipos. Use portugues brasileiro.`
+
+      const userPrompt = `Sugira angulos editoriais para esta pauta:
+
+Titulo: ${selectedPauta.titulo}
+Descricao: ${selectedPauta.descricao}
+Tags: ${selectedPauta.tags.join(', ')}
+${selectedPauta.clube ? `Clube: ${selectedPauta.clube}` : ''}
+${selectedPauta.competicao ? `Competicao: ${selectedPauta.competicao}` : ''}${existingAngulos}`
+
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiUrl,
+          apiKey,
+          provider: 'openai',
+          body: {
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.85,
+            max_tokens: 3000,
+          },
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error?.message || data.error || 'Erro na API')
+
+      const responseText = data.choices?.[0]?.message?.content || ''
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/)
+      if (!jsonMatch) throw new Error('Resposta da IA invalida')
+
+      const suggestions: {
+        tipo: string
+        titulo: string
+        resumo: string
+        porqueFunciona: string
+        formatos: string[]
+        plataformas: string[]
+      }[] = JSON.parse(jsonMatch[0])
+
+      for (const s of suggestions) {
+        const tipo = TIPO_OPTIONS.includes(s.tipo as AnguloDeTipo)
+          ? (s.tipo as AnguloDeTipo)
+          : 'jornalistico'
+        addAngulo(selectedPautaId, {
+          tipo,
+          titulo: s.titulo,
+          resumo: s.resumo,
+          porqueFunciona: s.porqueFunciona || '',
+          formatos: Array.isArray(s.formatos) ? s.formatos : [],
+          plataformas: Array.isArray(s.plataformas) ? s.plataformas : [],
+          favorito: false,
+          aprovado: false,
+          descartado: false,
+        })
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro ao sugerir angulos'
+      setSuggestError(msg)
+    } finally {
+      setSuggestingAngulos(false)
+    }
   }
 
   // --- Render ---
@@ -424,13 +519,45 @@ export default function SalaCriacaoPage() {
                         ({selectedPauta.angulos.length})
                       </span>
                     </div>
-                    <button
-                      onClick={() => setShowNewAngulo(true)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border-strong text-text-secondary font-ui text-[9px] font-semibold tracking-wider uppercase hover:border-purple hover:text-purple transition-all"
-                    >
-                      <Plus size={12} /> Novo Angulo
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleSugerirAngulos}
+                        disabled={suggestingAngulos}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-ui text-[9px] font-semibold tracking-wider uppercase transition-all ${
+                          suggestingAngulos
+                            ? 'bg-surface border border-border text-text-muted cursor-wait'
+                            : 'gradient-bg text-white hover:shadow-lg hover:shadow-purple/20'
+                        }`}
+                      >
+                        {suggestingAngulos ? (
+                          <><Loader2 size={12} className="animate-spin" /> Gerando...</>
+                        ) : (
+                          <><Zap size={12} /> Sugerir com IA</>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setShowNewAngulo(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border-strong text-text-secondary font-ui text-[9px] font-semibold tracking-wider uppercase hover:border-purple hover:text-purple transition-all"
+                      >
+                        <Plus size={12} /> Manual
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Suggest error */}
+                  <AnimatePresence>
+                    {suggestError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        className="bg-red/10 border border-red/20 rounded-md p-3 flex items-start gap-2 mb-4"
+                      >
+                        <AlertCircle size={14} className="text-red mt-0.5 shrink-0" />
+                        <p className="text-xs text-red">{suggestError}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* New angulo form */}
                   <AnimatePresence>

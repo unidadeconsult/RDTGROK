@@ -5,8 +5,8 @@ import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Home, Lightbulb, Flame, Brain, Goal,
-  TreePine, Gamepad2, Radar, Package, Calendar,
-  Star, Archive, Settings, Zap, Search, X, Menu,
+  TreePine, Gamepad2, Radar, Users,
+  Star, Archive, Settings, Zap, X, Menu,
   Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
@@ -25,7 +25,7 @@ const navSections = [
       { id: 'vestiario', label: 'Vestiario de Ideias', icon: Lightbulb, href: '/vestiario', badge: null },
       { id: 'draft', label: 'Draft RDT', icon: Flame, href: '/draft', badge: null },
       { id: 'sala-criacao', label: 'Sala de Criacao', icon: Brain, href: '/sala-criacao', badge: null },
-      { id: 'mesa-redonda', label: 'Mesa Redonda', icon: Zap, href: '/mesa-redonda', badge: null },
+      { id: 'mesa-redonda', label: 'Mesa de Abordagem', icon: Users, href: '/mesa-redonda', badge: null },
       { id: 'prancheta', label: 'Prancheta Editorial', icon: Goal, href: '/prancheta', badge: null },
       { id: 'arvore', label: 'Arvore de Conteudo', icon: TreePine, href: '/arvore', badge: null },
       { id: 'escalacao', label: 'Escalacao', icon: Gamepad2, href: '/escalacao', badge: null },
@@ -35,8 +35,6 @@ const navSections = [
     label: 'Monitorar',
     items: [
       { id: 'radar', label: 'Radar de Pautas', icon: Radar, href: '/radar', badge: null },
-      { id: 'pacotes', label: 'Pacotes', icon: Package, href: '/pacotes', badge: null },
-      { id: 'planejamento', label: 'Planejamento', icon: Calendar, href: '/planejamento', badge: null },
     ]
   },
   {

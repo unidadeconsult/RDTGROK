@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion';
 import {
   Lightbulb, Flame, Zap, Clock,
-  ArrowRight, Sparkles, Target
+  ArrowRight, Sparkles, Target,
+  AlertTriangle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
@@ -43,6 +44,12 @@ export default function CentralPage() {
   const topPautas = [...pautas].sort((a, b) => b.overall - a.overall).slice(0, 4);
   const topPauta = topPautas[0];
 
+  const expirandoPautas = pautas.filter(p => {
+    if (p.vidaUtil === 'minutos' || p.vidaUtil === 'horas' || p.vidaUtil === 'hoje') return true;
+    if (p.semaforo === 'vermelho') return true;
+    return false;
+  });
+
   const stats = [
     { label: 'Ideias no Vestiario', value: String(ideias.length), icon: Lightbulb, color: 'text-cyan', bg: 'bg-cyan/10', href: '/vestiario' },
     { label: 'Pautas Titulares', value: String(titulares.length), icon: Flame, color: 'text-gold', bg: 'bg-gold/10', href: '/draft' },
@@ -74,6 +81,34 @@ export default function CentralPage() {
           );
         })}
       </motion.div>
+
+      {expirandoPautas.length > 0 && (
+        <motion.div variants={item} className="bg-red/5 border border-red/20 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle size={16} className="text-red" />
+            <h3 className="font-ui text-[10px] font-bold tracking-[2px] uppercase text-red">
+              Pautas Expirando
+            </h3>
+            <span className="font-stat text-sm font-bold text-red">{expirandoPautas.length}</span>
+          </div>
+          <div className="space-y-2">
+            {expirandoPautas.slice(0, 4).map(p => {
+              const vidaLabel = p.vidaUtil === 'minutos' ? 'MINUTOS' : p.vidaUtil === 'horas' ? 'HORAS' : p.vidaUtil === 'hoje' ? 'HOJE' : 'URGENTE';
+              return (
+                <Link key={p.id} href="/draft">
+                  <div className="flex items-center gap-3 p-2.5 rounded-md bg-bg-primary/50 border border-red/15 hover:border-red/30 transition-all cursor-pointer">
+                    <div className="w-2 h-2 rounded-full bg-red animate-pulse shrink-0" />
+                    <span className="text-sm text-text-primary flex-1 truncate">{p.titulo}</span>
+                    <span className="font-ui text-[8px] tracking-wider font-bold px-2 py-0.5 rounded bg-red/15 text-red border border-red/20">
+                      {vidaLabel}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         <motion.div variants={item} className="lg:col-span-2 bg-surface border border-border rounded-lg p-5 lg:p-6">
@@ -197,7 +232,7 @@ export default function CentralPage() {
         {[
           { icon: '💡', label: 'Capturar Ideia', href: '/vestiario', desc: 'Registre rapidamente' },
           { icon: '🧠', label: 'Brainstorming', href: '/sala-criacao', desc: 'Pense antes de criar' },
-          { icon: '⚽', label: 'Mesa Redonda', href: '/mesa-redonda', desc: 'Multiplos angulos' },
+          { icon: '⚽', label: 'Mesa de Abordagem', href: '/mesa-redonda', desc: '15 personalidades' },
           { icon: '🌳', label: 'Arvore de Conteudo', href: '/arvore', desc: 'Multiplique ideias' },
         ].map((a) => (
           <Link key={a.label} href={a.href}>
