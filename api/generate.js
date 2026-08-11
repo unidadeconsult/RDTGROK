@@ -19,13 +19,13 @@ export default async function handler(req) {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
-  const { apiUrl, apiKey, body } = data;
+  const { apiUrl, apiKey, body, provider } = data;
 
   if (!apiUrl || !apiKey || !body) {
     return new Response(JSON.stringify({ error: 'Missing apiUrl, apiKey, or body' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
-  const allowedHosts = ['api.groq.com', 'api.deepseek.com', 'api.openai.com'];
+  const allowedHosts = ['api.groq.com', 'api.deepseek.com', 'api.openai.com', 'api.anthropic.com'];
   try {
     const url = new URL(apiUrl);
     if (!allowedHosts.includes(url.hostname)) {
@@ -36,12 +36,18 @@ export default async function handler(req) {
   }
 
   try {
+    const headers = { 'Content-Type': 'application/json' };
+
+    if (provider === 'anthropic') {
+      headers['x-api-key'] = apiKey;
+      headers['anthropic-version'] = '2023-06-01';
+    } else {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+
     const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
+      headers,
       body: JSON.stringify(body)
     });
 
