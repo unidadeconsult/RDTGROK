@@ -25,7 +25,7 @@ export default async function handler(req) {
     return new Response(JSON.stringify({ error: 'Missing apiUrl, apiKey, or body' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
-  const allowedHosts = ['api.groq.com', 'api.deepseek.com', 'api.openai.com', 'api.anthropic.com'];
+  const allowedHosts = ['api.groq.com', 'api.deepseek.com', 'api.openai.com', 'api.anthropic.com', 'r.jina.ai'];
   try {
     const url = new URL(apiUrl);
     if (!allowedHosts.includes(url.hostname)) {
