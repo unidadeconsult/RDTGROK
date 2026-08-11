@@ -6,7 +6,8 @@ import { motion } from 'framer-motion';
 import {
   Home, Lightbulb, Flame, Brain, Goal,
   TreePine, Gamepad2, Radar, Package, Calendar,
-  Star, Archive, Settings, Zap, Search, X, Menu
+  Star, Archive, Settings, Zap, Search, X, Menu,
+  Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,6 +16,7 @@ const navSections = [
     label: null,
     items: [
       { id: 'central', label: 'Central', icon: Home, href: '/', badge: null },
+      { id: 'gerador', label: 'Gerador de Conteudo', icon: Sparkles, href: '/gerador', badge: null },
     ]
   },
   {
