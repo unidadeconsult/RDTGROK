@@ -420,6 +420,59 @@
       box-shadow: 0 0 15px var(--glow-purple);
     }
 
+    /* ==================== VOICE SELECTOR ==================== */
+    .voice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .voice-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px 8px 4px 8px;
+      padding: 16px 12px;
+      cursor: pointer;
+      transition: all 0.25s ease-out;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .voice-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .voice-card:hover {
+      border-color: rgba(139,0,255,0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(139,0,255,0.12);
+    }
+    .voice-card:hover::before { opacity: 1; }
+    .voice-card.active {
+      border-color: var(--purple);
+      background: rgba(139,0,255,0.08);
+      box-shadow: 0 0 20px var(--glow-purple);
+    }
+    .voice-card.active::before { opacity: 1; }
+    .voice-card:active { transform: scale(0.97); }
+    .voice-icon { font-size: 28px; margin-bottom: 8px; }
+    .voice-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+    .voice-desc { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
     /* ==================== TEMPLATE CARDS ==================== */
     .template-grid {
       display: grid;
@@ -514,6 +567,79 @@
     }
     .char-count.warn { color: var(--orange); }
     .char-count.over { color: var(--red); }
+    .char-count.ok { color: var(--green); }
+
+    /* ==================== PLATFORM OUTPUT CARDS ==================== */
+    .platform-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px 8px 4px 8px;
+      padding: 20px;
+      margin-bottom: 12px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+    .platform-card:hover { border-color: rgba(139,0,255,0.25); }
+    .platform-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .platform-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .platform-label.instagram { color: #E1306C; }
+    .platform-label.facebook { color: #1877F2; }
+    .platform-label.twitter { color: var(--text-primary); }
+    .platform-label.titles { color: var(--gold); }
+    .platform-label.artphrase { color: var(--cyan); }
+    .platform-text {
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      color: var(--text-primary);
+    }
+
+    /* ==================== URL INPUT ==================== */
+    .url-input-wrap {
+      position: relative;
+    }
+    .url-input-wrap input {
+      padding-left: 42px;
+      font-size: 15px;
+      padding-top: 14px;
+      padding-bottom: 14px;
+    }
+    .url-input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .url-status {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .url-status.active { display: flex; }
+    .url-status.reading { color: var(--cyan); }
+    .url-status.done { color: var(--green); }
+    .url-status.error { color: var(--red); }
 
     /* ==================== LOADING ==================== */
     .loading { display: none; align-items: center; gap: 14px; padding: 20px; }
@@ -705,20 +831,6 @@
       border-color: transparent;
     }
 
-    /* ==================== API CONFIG INLINE ==================== */
-    .api-config {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 16px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: flex-end;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .api-config .field { margin-bottom: 0; flex: 1; min-width: 180px; }
-
     /* ==================== RESPONSIVE ==================== */
     @media (max-width: 768px) {
       .sidebar { display: none; }
@@ -726,14 +838,12 @@
       .main { padding: 16px; max-width: 100%; }
       .mobile-nav { display: flex !important; }
       .header-logo-sub { display: none; }
-      .template-grid { grid-template-columns: repeat(2, 1fr); }
-      .api-config { flex-direction: column; }
-      .api-config .field { min-width: 100%; }
+      .template-grid, .voice-grid { grid-template-columns: repeat(2, 1fr); }
       .section-title { font-size: 24px; }
     }
 
     @media print {
-      .header, .sidebar, .mobile-nav, .drawer, .drawer-overlay, .toast-container, button, .btn, .api-config { display: none !important; }
+      .header, .sidebar, .mobile-nav, .drawer, .drawer-overlay, .toast-container, button, .btn { display: none !important; }
       body { background: white !important; color: black !important; }
       body::before, body::after { display: none !important; }
     }
@@ -770,7 +880,8 @@
 
 <!-- Mobile Nav -->
 <nav class="mobile-nav" id="mobileNav">
-  <button class="mobile-nav-item active" data-section="posts" onclick="switchSection('posts')">Posts</button>
+  <button class="mobile-nav-item active" data-section="gerador" onclick="switchSection('gerador')">Gerador URL</button>
+  <button class="mobile-nav-item" data-section="posts" onclick="switchSection('posts')">Posts</button>
   <button class="mobile-nav-item" data-section="topicos" onclick="switchSection('topicos')">Topicos</button>
   <button class="mobile-nav-item" data-section="salajogo" onclick="switchSection('salajogo')">Sala do Jogo</button>
   <button class="mobile-nav-item" data-section="editorial" onclick="switchSection('editorial')">Editorial</button>
@@ -782,8 +893,14 @@
 <div class="layout">
   <!-- ==================== SIDEBAR ==================== -->
   <aside class="sidebar">
+    <div class="sidebar-label">Principal</div>
+    <div class="nav-item active" data-section="gerador" onclick="switchSection('gerador')">
+      <span class="nav-icon">🔗</span> Gerador URL
+      <span class="nav-badge">NEW</span>
+    </div>
+
     <div class="sidebar-label">Gerar Conteudo</div>
-    <div class="nav-item active" data-section="posts" onclick="switchSection('posts')">
+    <div class="nav-item" data-section="posts" onclick="switchSection('posts')">
       <span class="nav-icon">💬</span> Posts RDT
     </div>
     <div class="nav-item" data-section="topicos" onclick="switchSection('topicos')">
@@ -815,8 +932,74 @@
   <!-- ==================== MAIN ==================== -->
   <main class="main" id="mainContent">
 
+    <!-- ===== GERADOR URL ===== -->
+    <div class="section-panel active" id="section-gerador">
+      <h2 class="section-title">GERADOR RDT POR URL</h2>
+      <p class="section-desc">Cole a URL da noticia, escolha a voz do especialista e gere conteudo formatado para todas as redes.</p>
+
+      <div class="card">
+        <div class="card-title">URL da Pauta</div>
+        <div class="field">
+          <label for="geradorUrl">Link da noticia / materia</label>
+          <div class="url-input-wrap">
+            <span class="url-input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            </span>
+            <input type="url" id="geradorUrl" placeholder="https://ge.globo.com/futebol/..." autocomplete="off">
+          </div>
+          <div class="url-status" id="urlStatus">
+            <span class="loading-bar" style="width:80px;height:3px"></span>
+            <span id="urlStatusText">Lendo conteudo...</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="geradorTexto">Ou cole o texto diretamente (opcional)</label>
+          <textarea id="geradorTexto" rows="4" placeholder="Se preferir, cole aqui o texto da noticia em vez de usar a URL..."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Escolha o Especialista</div>
+        <div class="voice-grid" id="voiceGrid">
+          <div class="voice-card active" data-voice="leifert" onclick="selectVoice(this)">
+            <div class="voice-icon">🎙️</div>
+            <div class="voice-name">Tiago Leifert</div>
+            <div class="voice-desc">Conversacional e inteligente</div>
+          </div>
+          <div class="voice-card" data-voice="vsr" onclick="selectVoice(this)">
+            <div class="voice-icon">🔍</div>
+            <div class="voice-name">VSR</div>
+            <div class="voice-desc">Analitico e direto</div>
+          </div>
+          <div class="voice-card" data-voice="rafael" onclick="selectVoice(this)">
+            <div class="voice-icon">⚽</div>
+            <div class="voice-name">Rafael Oliveira</div>
+            <div class="voice-desc">Tatico e explicativo</div>
+          </div>
+          <div class="voice-card" data-voice="fred" onclick="selectVoice(this)">
+            <div class="voice-icon">😂</div>
+            <div class="voice-name">Fred</div>
+            <div class="voice-desc">Humor e resenha</div>
+          </div>
+          <div class="voice-card" data-voice="vampeta" onclick="selectVoice(this)">
+            <div class="voice-icon">🗣️</div>
+            <div class="voice-name">Vampeta</div>
+            <div class="voice-desc">Boleiro e provocador</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="gerarUrl()" id="btnGerarUrl">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Gerar Conteudo RDT
+        </button>
+        <div class="progress-bar" id="progressGerador"></div>
+      </div>
+
+      <div class="loading" id="loadingGerador"><div class="loading-bar"></div><span class="loading-pac pac-anim">99</span><span class="loading-text">Gerando conteudo...</span></div>
+      <div id="outputGerador"></div>
+    </div>
+
     <!-- ===== POSTS RDT ===== -->
-    <div class="section-panel active" id="section-posts">
+    <div class="section-panel" id="section-posts">
       <h2 class="section-title">POSTS RDT</h2>
       <p class="section-desc">Publicacoes rapidas de ate 300 caracteres para o feed do RDT.</p>
 
@@ -1095,7 +1278,185 @@ const S = {
   types: { topicos:'debate', salajogo:'prejogo', editorial:'noticia', mercado:'noticia', enquete:'votacao', social:'instagram' },
   sizes: { editorial:'medio' },
   qty: { posts:3 },
+  voice: 'leifert',
   generating: false
+};
+
+const PROMPT_MESTRE = `Atue como jornalista esportivo, social media e contador de historias do RDT — Resenha da Torcida.
+Analise a pauta enviada e crie tres conteudos diferentes:
+- legenda para Instagram;
+- publicacao para Facebook;
+- post para o X.
+
+LIMITE OBRIGATORIO
+Cada conteudo deve possuir no maximo 300 caracteres, incluindo espacos.
+Para o X, respeite tambem o limite real permitido pela plataforma (280 caracteres).
+Nunca divida o conteudo em partes ou threads.
+
+COMO ANALISAR
+Antes de escrever, identifique internamente:
+- o fato principal;
+- o que esta confirmado;
+- por que isso importa;
+- o detalhe mais curioso;
+- a emocao ou discussao que a pauta pode provocar;
+- a melhor pergunta para o torcedor.
+Nao apresente essa analise. Use-a apenas para produzir os textos.
+Nao invente informacoes. Rumores devem ser apresentados como rumores.
+
+DNA RDT
+O RDT nao apenas informa.
+O RDT transforma:
+- jogadores em personagens;
+- partidas em historias;
+- estatisticas em emocoes;
+- noticias em assunto de arquibancada.
+A escrita deve ser humana, clara, fluida, envolvente e proxima do torcedor.
+Misture, quando couber: informacao, contexto, emocao, curiosidade, memoria, opiniao, debate.
+Mesmo com pouco espaco, o texto deve entregar algo alem do fato.
+
+INSTAGRAM
+Crie uma legenda curta, envolvente e emocional.
+Estrutura recomendada: gancho + fato + contexto ou curiosidade + CTA.
+Pode usar no maximo dois emojis e tres hashtags, somente quando forem realmente uteis.
+
+FACEBOOK
+Crie uma publicacao mais conversacional e contextualizada.
+Explique rapidamente o acontecimento e termine com uma pergunta que estimule comentarios.
+Nao copie a versao do Instagram.
+
+X
+Crie um post direto, rapido e provocador.
+Use: frase forte + informacao principal + opiniao ou pergunta.
+Nao copie as outras versoes e nao crie thread. Maximo 280 caracteres.
+
+REGRAS DE ESCRITA
+Evite:
+- listas dentro dos textos;
+- excesso de emojis;
+- frases genericas;
+- clickbait barato;
+- linguagem corporativa;
+- conclusoes motivacionais;
+- informacoes inventadas;
+- excesso de hashtags;
+- aparencia de texto criado por inteligencia artificial.
+
+Nao utilize expressoes como: "Em resumo", "Alem disso", "Vale destacar", "E importante ressaltar", "Voce nao vai acreditar", "Prepare-se".
+
+As tres versoes devem ter construcoes, aberturas e abordagens diferentes.
+
+FORMATO DA RESPOSTA (siga EXATAMENTE este formato):
+INSTAGRAM
+[Texto com ate 300 caracteres]
+Caracteres: [quantidade exata]
+
+FACEBOOK
+[Texto com ate 300 caracteres]
+Caracteres: [quantidade exata]
+
+X
+[Texto adaptado ao X, max 280 caracteres]
+Caracteres: [quantidade exata]
+
+TITULOS
+1. [titulo curto]
+2. [titulo curto]
+3. [titulo curto]
+
+FRASE PARA A ARTE
+[frase curta, forte e facil de ler na imagem]
+
+VAR EDITORIAL (revise silenciosamente antes de entregar):
+- todos os fatos estao de acordo com a pauta?
+- rumores estao identificados?
+- cada versao respeita o limite?
+- os textos sao realmente diferentes?
+- existe clareza e personalidade?
+- o conteudo parece humano?
+- existe potencial de comentario ou compartilhamento?
+- o texto possui o DNA RDT?
+Caso algum item falhe, reescreva antes de apresentar.
+
+REGRA SUPREMA
+Nao escreva como Wikipedia, assessoria de imprensa ou portal generico.
+Escreva como um amigo apaixonado por futebol, bem informado e com uma boa historia para contar.
+Em ate 300 caracteres, faca o torcedor sentir, lembrar, descobrir ou discutir.`;
+
+const VOICES = {
+  leifert: `ESPECIALISTA: Tiago Leifert RDT
+Crie conteudos de futebol com ate 300 caracteres, misturando o jeito conversacional de Tiago Leifert com o DNA do RDT.
+Escreva como quem conta uma boa historia para um amigo: frases naturais, proximidade, humor leve, curiosidade e opiniao sem exagero.
+Sempre busque:
+- comecar com uma frase que pare o leitor;
+- explicar rapidamente o fato;
+- mostrar por que aquilo importa;
+- acrescentar memoria, curiosidade ou contexto quando couber;
+- terminar com uma pergunta ou provocacao que gere conversa.
+O texto deve ser humano, leve, inteligente e com cara de resenha.
+Evite linguagem de portal, frases genericas, clickbait, excesso de emojis, formalidade e texto com aparencia de IA.
+Formula RDT: Gancho + fato + contexto/curiosidade + resenha + pergunta.
+O leitor precisa terminar pensando: "Boa historia.", "Eu lembrava disso!" ou "Quero responder isso."`,
+
+  vsr: `ESPECIALISTA: VSR (Voz Sem Rosto)
+Crie conteudos de futebol com ate 300 caracteres, com uma abordagem analitica, direta e opinativa, combinada ao DNA do RDT.
+O texto deve:
+- partir do fato, nao da emocao;
+- explicar rapidamente o que isso significa;
+- trazer contexto que ajude o torcedor a entender a noticia;
+- separar fato, expectativa e opiniao;
+- evitar oba-oba, exageros e conclusoes faceis;
+- quando possivel, questionar a narrativa mais obvia;
+- usar ironia ou provocacao leve, nunca gratuita;
+- terminar com uma leitura, duvida ou pergunta que gere debate.
+Formula RDT Analitica: Fato + contexto + interpretacao + provocacao.
+Prefira frases como: "Esse e o ponto.", "O numero chama atencao, mas o contexto importa.", "A discussao talvez seja outra.", "Mais importante que o resultado e entender por que."
+O leitor deve terminar pensando: "Faz sentido.", "Nao tinha olhado por esse lado." ou "Discordo e quero responder."`,
+
+  rafael: `ESPECIALISTA: Rafael Oliveira
+Crie conteudos de futebol com ate 300 caracteres, unindo analise tatica simples ao DNA do RDT.
+O texto deve:
+- ir alem do resultado;
+- explicar rapidamente como e por que algo aconteceu;
+- destacar espaco, movimentacao, funcao ou encaixe tatico quando relevante;
+- traduzir conceitos de jogo para linguagem facil;
+- evitar jargao excessivo;
+- valorizar contexto antes de julgar jogador ou treinador;
+- trazer curiosidade ou leitura diferente;
+- terminar com uma pergunta que convide o torcedor para a analise.
+Formula RDT Tatica: Fato + explicacao do jogo + contexto + debate.
+Prefira ideias como: "Nao foi so erro individual.", "O espaco explica muita coisa.", "A funcao dele mudou o jogo.", "O placar conta uma parte. O campo conta outra."
+O leitor deve terminar pensando: "Agora entendi o que aconteceu." ou "Nunca tinha reparado nisso."`,
+
+  fred: `ESPECIALISTA: Fred Desimpedidos
+Crie conteudos de futebol com ate 300 caracteres, unindo humor, irreverencia, provocacao e linguagem de arquibancada ao DNA do RDT.
+O texto deve:
+- comecar com impacto;
+- soar como resenha entre amigos;
+- usar humor e exagero com inteligencia;
+- provocar sem partir para ofensa;
+- transformar noticia em assunto de grupo;
+- usar referencias populares do futebol quando couber;
+- fugir do tom serio de portal;
+- terminar com pergunta, zoeira ou provocacao.
+Formula RDT Resenha: Gancho + fato + reacao + provocacao.
+Prefira ideias como: "Meu amigo...", "Isso aqui virou videogame.", "Pode fechar o futebol.", "Alguem explica isso?", "E ai, vai defender?"
+O leitor deve terminar pensando: "KKKK exatamente!", "Preciso mandar isso no grupo." ou "Vou responder essa."`,
+
+  vampeta: `ESPECIALISTA: Vampeta
+Crie conteudos de futebol com ate 300 caracteres, misturando irreverencia, sinceridade, humor de boleiro e provocacao com o DNA do RDT.
+O texto deve:
+- ir direto ao ponto;
+- ter opiniao clara;
+- usar humor e resenha de vestiario;
+- provocar sem medo, mas sem ofender;
+- tratar o futebol com linguagem popular;
+- fugir do discurso politicamente ensaiado;
+- usar experiencia de campo como referencia;
+- terminar com uma cutucada ou pergunta forte.
+Formula RDT Boleiro: Fato + opiniao + resenha + provocacao.
+Prefira ideias como: "Vou falar uma coisa...", "Isso ai no vestiario e outra conversa.", "Pode ter numero bonito, mas futebol nao e planilha.", "Tem coisa que jogador entende na hora.", "E ai, vai passar pano?"
+O leitor deve terminar pensando: "Ele falou o que muita gente pensa.", "Essa vai dar discussao." ou "Quero responder isso."`
 };
 
 const DNA = `Voce e o redator oficial da RDT — Resenha da Torcida, uma plataforma brasileira de futebol (rede social + foruns + portal esportivo).
@@ -1133,6 +1494,206 @@ const TEMPLATES = {
     escalacao:{tema:'',contexto:'Analise ou sugira uma escalacao. Comente os nomes.'}
   }
 };
+
+function selectVoice(el) {
+  document.querySelectorAll('.voice-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  S.voice = el.dataset.voice;
+}
+
+async function fetchUrlContent(url) {
+  const statusEl = document.getElementById('urlStatus');
+  const statusText = document.getElementById('urlStatusText');
+  statusEl.className = 'url-status active reading';
+  statusText.textContent = 'Lendo conteudo da URL...';
+
+  try {
+    const jinaUrl = 'https://r.jina.ai/' + url;
+    const resp = await fetch(jinaUrl, {
+      headers: { 'Accept': 'text/plain' }
+    });
+    if (!resp.ok) throw new Error('Erro ao ler URL: ' + resp.status);
+    const text = await resp.text();
+    statusEl.className = 'url-status active done';
+    statusText.textContent = 'Conteudo lido com sucesso!';
+    setTimeout(() => { statusEl.className = 'url-status'; }, 3000);
+    return text.substring(0, 8000);
+  } catch (e) {
+    statusEl.className = 'url-status active error';
+    statusText.textContent = 'Erro ao ler URL. Cole o texto manualmente.';
+    throw e;
+  }
+}
+
+async function gerarUrl() {
+  if (S.generating) return;
+  const key = localStorage.getItem('rdt_key_openai') || '';
+  if (!key) { toast('Configure sua API Key.', 'warning'); openDrawer('settings'); return; }
+
+  const url = gv('geradorUrl');
+  let texto = gv('geradorTexto');
+
+  if (!url && !texto) {
+    toast('Cole uma URL ou o texto da noticia.', 'warning');
+    return;
+  }
+
+  S.generating = true;
+  const btn = document.getElementById('btnGerarUrl');
+  btn.disabled = true;
+  document.getElementById('loadingGerador').classList.add('active');
+  document.getElementById('progressGerador').classList.add('active');
+  const output = document.getElementById('outputGerador');
+
+  try {
+    if (url && !texto) {
+      try {
+        texto = await fetchUrlContent(url);
+      } catch (e) {
+        toast('Nao foi possivel ler a URL. Cole o texto manualmente.', 'error');
+        S.generating = false;
+        btn.disabled = false;
+        document.getElementById('loadingGerador').classList.remove('active');
+        document.getElementById('progressGerador').classList.remove('active');
+        return;
+      }
+    }
+
+    const voicePrompt = VOICES[S.voice] || VOICES.leifert;
+    const system = PROMPT_MESTRE + '\n\n' + voicePrompt;
+    const user = `PAUTA:\n${texto}\n\nGere o conteudo completo seguindo o formato especificado (Instagram, Facebook, X, Titulos, Frase para a Arte).`;
+
+    const fullText = await streamGenerate(system, user, output, 4096);
+    if (fullText) {
+      renderGeradorOutput(output, fullText);
+      saveHistory('gerador', fullText);
+    }
+  } catch (e) {
+    toast('Erro: ' + e.message, 'error');
+    if (output) output.innerHTML = `<div class="card" style="border-color:var(--red)"><p style="color:var(--red)">Erro: ${esc(e.message)}</p></div>`;
+  } finally {
+    S.generating = false;
+    btn.disabled = false;
+    document.getElementById('loadingGerador').classList.remove('active');
+    document.getElementById('progressGerador').classList.remove('active');
+  }
+}
+
+function renderGeradorOutput(container, text) {
+  const sections = parseGeradorOutput(text);
+  let html = '';
+
+  if (sections.instagram) {
+    const len = sections.instagram.length;
+    const cls = len > 300 ? 'over' : len > 270 ? 'warn' : 'ok';
+    html += `<div class="platform-card">
+      <div class="platform-header">
+        <span class="platform-label instagram">📸 Instagram</span>
+        <span class="char-count ${cls}">${len}/300</span>
+      </div>
+      <div class="platform-text">${esc(sections.instagram)}</div>
+      <div class="batch-actions"><button class="btn btn-secondary btn-sm" onclick="copiar(this,${JSON.stringify(sections.instagram).replace(/"/g,'&quot;')})">Copiar</button></div>
+    </div>`;
+  }
+
+  if (sections.facebook) {
+    const len = sections.facebook.length;
+    const cls = len > 300 ? 'over' : len > 270 ? 'warn' : 'ok';
+    html += `<div class="platform-card">
+      <div class="platform-header">
+        <span class="platform-label facebook">📘 Facebook</span>
+        <span class="char-count ${cls}">${len}/300</span>
+      </div>
+      <div class="platform-text">${esc(sections.facebook)}</div>
+      <div class="batch-actions"><button class="btn btn-secondary btn-sm" onclick="copiar(this,${JSON.stringify(sections.facebook).replace(/"/g,'&quot;')})">Copiar</button></div>
+    </div>`;
+  }
+
+  if (sections.x) {
+    const len = sections.x.length;
+    const cls = len > 280 ? 'over' : len > 250 ? 'warn' : 'ok';
+    html += `<div class="platform-card">
+      <div class="platform-header">
+        <span class="platform-label twitter">𝕏 X (Twitter)</span>
+        <span class="char-count ${cls}">${len}/280</span>
+      </div>
+      <div class="platform-text">${esc(sections.x)}</div>
+      <div class="batch-actions"><button class="btn btn-secondary btn-sm" onclick="copiar(this,${JSON.stringify(sections.x).replace(/"/g,'&quot;')})">Copiar</button></div>
+    </div>`;
+  }
+
+  if (sections.titulos) {
+    html += `<div class="platform-card">
+      <div class="platform-header">
+        <span class="platform-label titles">✏️ Titulos</span>
+      </div>
+      <div class="platform-text">${esc(sections.titulos)}</div>
+      <div class="batch-actions"><button class="btn btn-secondary btn-sm" onclick="copiar(this,${JSON.stringify(sections.titulos).replace(/"/g,'&quot;')})">Copiar</button></div>
+    </div>`;
+  }
+
+  if (sections.arte) {
+    html += `<div class="platform-card" style="border-color:rgba(0,240,255,0.2);background:var(--gradient-subtle)">
+      <div class="platform-header">
+        <span class="platform-label artphrase">🎨 Frase para a Arte</span>
+      </div>
+      <div class="platform-text" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;line-height:1.4">${esc(sections.arte)}</div>
+      <div class="batch-actions"><button class="btn btn-secondary btn-sm" onclick="copiar(this,${JSON.stringify(sections.arte).replace(/"/g,'&quot;')})">Copiar</button></div>
+    </div>`;
+  }
+
+  html += `<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn btn-primary btn-sm" onclick="copiarTudo()">Copiar Tudo</button>
+    <button class="btn btn-secondary btn-sm" onclick="gerarUrl()">Gerar Novamente</button>
+  </div>`;
+
+  container.innerHTML = html;
+  container.dataset.fullText = text;
+}
+
+function parseGeradorOutput(text) {
+  const result = { instagram: '', facebook: '', x: '', titulos: '', arte: '' };
+  const normalized = text.replace(/\r\n/g, '\n');
+
+  const igMatch = normalized.match(/INSTAGRAM\s*\n([\s\S]*?)(?=\nFACEBOOK|\nCaracteres:)/i);
+  if (igMatch) {
+    result.instagram = igMatch[1].trim().replace(/\nCaracteres:.*$/im, '').trim();
+  }
+
+  const fbMatch = normalized.match(/FACEBOOK\s*\n([\s\S]*?)(?=\nX\b|\nCaracteres:)/i);
+  if (fbMatch) {
+    result.facebook = fbMatch[1].trim().replace(/\nCaracteres:.*$/im, '').trim();
+  }
+
+  const xMatch = normalized.match(/\nX\s*\n([\s\S]*?)(?=\nCaracteres:|\nT[IÍ]TULOS)/i);
+  if (xMatch) {
+    result.x = xMatch[1].trim().replace(/\nCaracteres:.*$/im, '').trim();
+  }
+
+  const titMatch = normalized.match(/T[IÍ]TULOS\s*\n([\s\S]*?)(?=\nFRASE PARA A? ARTE|\nVAR EDITORIAL|$)/i);
+  if (titMatch) {
+    result.titulos = titMatch[1].trim();
+  }
+
+  const arteMatch = normalized.match(/FRASE PARA A? ARTE\s*\n([\s\S]*?)(?=\nVAR EDITORIAL|$)/i);
+  if (arteMatch) {
+    result.arte = arteMatch[1].trim();
+  }
+
+  if (!result.instagram && !result.facebook && !result.x) {
+    result.instagram = text;
+  }
+
+  return result;
+}
+
+function copiarTudo() {
+  const output = document.getElementById('outputGerador');
+  const text = output.dataset.fullText || '';
+  if (text) {
+    copiar(document.querySelector('#outputGerador .btn-primary'), text);
+  }
+}
 
 function buildPrompt(sec) {
   const tone = TONES[S.tones[sec]||'equilibrado']||'';
@@ -1297,7 +1858,7 @@ function updateStatus(){
 
 async function copiar(btn,text){
   try{await navigator.clipboard.writeText(text);}catch{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}
-  const o=btn.innerHTML;btn.innerHTML='✓ Copiado';btn.closest('.batch-item,.card')?.classList.add('copy-flash');
+  const o=btn.innerHTML;btn.innerHTML='✓ Copiado';btn.closest('.batch-item,.card,.platform-card')?.classList.add('copy-flash');
   setTimeout(()=>btn.innerHTML=o,2000);toast('Copiado!','success');
 }
 
@@ -1313,7 +1874,7 @@ function toast(msg,type='info'){
 // ==================== HISTORY ====================
 function saveHistory(sec,text){
   const h=JSON.parse(localStorage.getItem('rdt_history')||'[]');
-  const labels={posts:'Posts RDT',topicos:'Topico',salajogo:'Sala do Jogo',editorial:'Editorial',mercado:'Mercado',enquete:'Enquete',social:'Social',pacote:'Pacote Diario'};
+  const labels={gerador:'Gerador URL',posts:'Posts RDT',topicos:'Topico',salajogo:'Sala do Jogo',editorial:'Editorial',mercado:'Mercado',enquete:'Enquete',social:'Social',pacote:'Pacote Diario'};
   h.unshift({section:labels[sec]||sec,preview:text.substring(0,120),text,date:new Date().toLocaleString('pt-BR'),id:Date.now()});
   if(h.length>50)h.length=50;localStorage.setItem('rdt_history',JSON.stringify(h));
 }
