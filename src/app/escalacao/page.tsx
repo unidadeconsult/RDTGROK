@@ -279,7 +279,6 @@ export default function EscalacaoPage() {
 
       {/* Demo footer */}
       <motion.div variants={item} className="text-center py-4">
-        <span className="font-ui text-[9px] tracking-[3px] uppercase text-text-muted">Dados demonstrativos</span>
       </motion.div>
     </motion.div>
   );

@@ -448,7 +448,6 @@ export default function PlanejamentoPage() {
 
       <div className="text-center py-4">
         <span className="font-ui text-[9px] tracking-[3px] uppercase text-text-muted">
-          Dados demonstrativos
         </span>
       </div>
     </div>

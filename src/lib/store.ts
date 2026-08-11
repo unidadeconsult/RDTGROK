@@ -16,7 +16,7 @@ import type {
   Angulo,
   ConteudoDerivado,
 } from './types'
-import { demoPautas, demoIdeias, demoRadarItems } from './data'
+// Demo data available via: import { demoPautas, demoIdeias, demoRadarItems } from './data'
 import { generateId } from './utils'
 
 // ============================================================
@@ -99,9 +99,9 @@ function saveToStorage(state: StoreState): void {
 
 function getDefaultState(): StoreState {
   return {
-    pautas: demoPautas,
-    ideias: demoIdeias,
-    radarItems: demoRadarItems,
+    pautas: [],
+    ideias: [],
+    radarItems: [],
   }
 }
 

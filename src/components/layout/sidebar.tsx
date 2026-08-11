@@ -120,7 +120,6 @@ export function Sidebar() {
       {/* Footer */}
       <div className="px-4 py-4 border-t border-border">
         <div className="text-[10px] text-text-muted font-ui tracking-wider uppercase">
-          Dados demonstrativos
         </div>
       </div>
     </div>

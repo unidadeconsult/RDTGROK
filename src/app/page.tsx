@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import {
   Lightbulb, Flame, Zap, Clock,
-  ArrowRight, Sparkles, Target, Leaf
+  ArrowRight, Sparkles, Target
 } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
@@ -33,20 +33,6 @@ function OverallBadge({ score }: { score: number }) {
     </div>
   );
 }
-
-const evergreen = [
-  { titulo: 'Os 10 maiores classicos do futebol brasileiro', tags: ['Historia', 'Ranking'] },
-  { titulo: 'Como a torcida influencia no desempenho?', tags: ['Analise', 'Curiosidade'] },
-  { titulo: 'Escalacao historica: seu time ideal da decada', tags: ['Interativo', 'Opiniao'] },
-];
-
-const hojeItems = [
-  { icon: '🔥', texto: 'Memphis marcou 2 gols contra o Santos — pauta quente' },
-  { icon: '⚡', texto: '3 ideias salvas ontem estao sem desenvolver' },
-  { icon: '📋', texto: '2 pautas precisam de brainstorming' },
-  { icon: '⏰', texto: '1 pauta perdendo relevancia (vida util: horas)' },
-  { icon: '⚽', texto: 'Flamengo x Vasco amanha — oportunidade editorial' },
-];
 
 export default function CentralPage() {
   const { pautas, ideias } = useStore();
@@ -93,16 +79,46 @@ export default function CentralPage() {
         <motion.div variants={item} className="lg:col-span-2 bg-surface border border-border rounded-lg p-5 lg:p-6">
           <div className="flex items-center gap-2 mb-5">
             <span className="text-lg">☀️</span>
-            <h3 className="font-ui text-sm font-bold tracking-wider uppercase text-text-primary">Hoje no RDT</h3>
+            <h3 className="font-ui text-sm font-bold tracking-wider uppercase text-text-primary">Resumo</h3>
           </div>
-          <div className="space-y-3">
-            {hojeItems.map((h, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-md bg-bg-primary/50 border border-border hover:border-purple/20 transition-colors">
-                <span className="text-base mt-0.5">{h.icon}</span>
-                <span className="text-sm text-text-secondary">{h.texto}</span>
-              </div>
-            ))}
-          </div>
+          {pautas.length === 0 && ideias.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-text-muted text-sm mb-4">Sua central esta vazia. Comece capturando sua primeira ideia!</p>
+              <Link
+                href="/vestiario"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md gradient-bg text-white font-ui text-[10px] font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-purple/20 transition-all"
+              >
+                <Lightbulb size={14} /> Capturar Primeira Ideia
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {ideias.length > 0 && (
+                <div className="flex items-start gap-3 p-3 rounded-md bg-bg-primary/50 border border-border">
+                  <span className="text-base mt-0.5">💡</span>
+                  <span className="text-sm text-text-secondary">{ideias.length} {ideias.length === 1 ? 'ideia salva' : 'ideias salvas'} no vestiario</span>
+                </div>
+              )}
+              {titulares.length > 0 && (
+                <div className="flex items-start gap-3 p-3 rounded-md bg-bg-primary/50 border border-border">
+                  <span className="text-base mt-0.5">🔥</span>
+                  <span className="text-sm text-text-secondary">{titulares.length} {titulares.length === 1 ? 'pauta titular' : 'pautas titulares'}</span>
+                </div>
+              )}
+              {emBrainstorming.length > 0 && (
+                <div className="flex items-start gap-3 p-3 rounded-md bg-bg-primary/50 border border-border">
+                  <span className="text-base mt-0.5">🧠</span>
+                  <span className="text-sm text-text-secondary">{emBrainstorming.length} em brainstorming</span>
+                </div>
+              )}
+              {prontas.length > 0 && (
+                <div className="flex items-start gap-3 p-3 rounded-md bg-bg-primary/50 border border-border">
+                  <span className="text-base mt-0.5">✅</span>
+                  <span className="text-sm text-text-secondary">{prontas.length} {prontas.length === 1 ? 'pronta' : 'prontas'} para criacao</span>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
 
         <motion.div variants={item} className="bg-surface border border-purple/20 rounded-lg p-5 lg:p-6 relative overflow-hidden">
@@ -128,18 +144,18 @@ export default function CentralPage() {
               </div>
             </>
           ) : (
-            <p className="text-sm text-text-muted">Nenhuma pauta disponivel ainda.</p>
+            <p className="text-sm text-text-muted mb-4">Nenhuma pauta disponivel ainda. Capture ideias e promova para pautas.</p>
           )}
           <Link
-            href="/sala-criacao"
+            href={topPauta ? "/sala-criacao" : "/vestiario"}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md gradient-bg text-white font-ui text-[10px] font-semibold tracking-wider uppercase hover:shadow-lg hover:shadow-purple/20 transition-all"
           >
-            Abrir Pauta <ArrowRight size={14} />
+            {topPauta ? 'Abrir Pauta' : 'Comecar'} <ArrowRight size={14} />
           </Link>
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+      {topPautas.length > 0 && (
         <motion.div variants={item} className="bg-surface border border-border rounded-lg p-5 lg:p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
@@ -150,7 +166,7 @@ export default function CentralPage() {
               Ver todas
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {topPautas.map((p) => (
               <div key={p.id} className="p-3 rounded-md bg-bg-primary/50 border border-border hover:border-purple/20 transition-all cursor-pointer group">
                 <div className="flex items-start justify-between gap-3">
@@ -175,32 +191,7 @@ export default function CentralPage() {
             ))}
           </div>
         </motion.div>
-
-        <motion.div variants={item} className="bg-surface border border-border rounded-lg p-5 lg:p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <Leaf size={16} className="text-green" />
-              <h3 className="font-ui text-[11px] font-bold tracking-wider uppercase text-text-primary">Evergreen</h3>
-            </div>
-            <span className="font-ui text-[9px] tracking-wider px-2 py-0.5 rounded bg-green/10 text-green border border-green/20">Sem prazo</span>
-          </div>
-          <div className="space-y-3">
-            {evergreen.map((e, i) => (
-              <div key={i} className="p-3 rounded-md bg-bg-primary/50 border border-border hover:border-green/20 transition-all cursor-pointer group">
-                <h4 className="text-sm font-medium text-text-secondary group-hover:text-green transition-colors">{e.titulo}</h4>
-                <div className="flex gap-1.5 mt-2">
-                  {e.tags.map(t => (
-                    <span key={t} className="text-[9px] font-ui tracking-wider px-2 py-0.5 rounded bg-green/8 text-green/80 border border-green/15">{t}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 p-4 rounded-md gradient-subtle border border-purple/10">
-            <p className="text-sm text-text-secondary italic text-center">&ldquo;Uma ideia pode virar muitas jogadas.&rdquo;</p>
-          </div>
-        </motion.div>
-      </div>
+      )}
 
       <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
@@ -217,10 +208,6 @@ export default function CentralPage() {
             </div>
           </Link>
         ))}
-      </motion.div>
-
-      <motion.div variants={item} className="text-center py-4">
-        <span className="font-ui text-[9px] tracking-[3px] uppercase text-text-muted">Dados demonstrativos</span>
       </motion.div>
     </motion.div>
   );
